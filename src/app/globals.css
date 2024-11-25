@@ -2,20 +2,313 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+/* === Theme Variables === */
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Core Christmas Colors */
+    --santa-red: 358 69% 54%;
+    --santa-red-light: 358 69% 64%;
+    --santa-red-dark: 358 69% 44%;
+    --holly-green: 144 31% 40%;
+    --holly-green-light: 144 31% 50%;
+    --snow-white: 0 0% 98%;
+    --candy-cane-red: 354 70% 54%;
+    --christmas-gold: 45 94% 58%;
+    --winter-blue: 201 90% 27%;
+    --winter-blue-light: 201 90% 37%;
+    --cozy-cream: 30 25% 97%;
+    
+    /* UI Foundation Colors */
+    --background: var(--snow-white);
+    --foreground: 224 71.4% 4.1%;
+    --card: var(--snow-white);
+    --card-foreground: 224 71.4% 4.1%;
+    --popover: var(--snow-white);
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary: var(--santa-red);
+    --primary-foreground: var(--snow-white);
+    --secondary: var(--holly-green);
+    --secondary-foreground: var(--snow-white);
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: var(--christmas-gold);
+    --accent-foreground: 224 71.4% 4.1%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: var(--snow-white);
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: var(--santa-red);
+    --radius: 0.75rem;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* === Snow Animation === */
+@keyframes snowfall {
+  0% {
+    transform: translate3d(0, -100%, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(var(--travel, 50px), 100vh, 0) rotate(360deg);
+  }
+}
+
+.snowflake {
+  position: absolute;
+  width: var(--size, 8px);
+  height: var(--size, 8px);
+  background: white;
+  border-radius: 50%;
+  filter: blur(1px);
+  opacity: var(--opacity, 0.8);
+  animation: snowfall var(--duration, 10s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform;
+}
+
+/* === Festive Animations === */
+@keyframes twinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes jingle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes sparkle {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(0.5) rotate(180deg);
+    opacity: 0.5;
+  }
+}
+
+@keyframes candyCaneStripe {
+  0% { background-position: 0 0; }
+  100% { background-position: 100% 0; }
+}
+
+@keyframes glow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5)); }
+  50% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)); }
+}
+
+/* === Utility Classes === */
+@layer utilities {
+  .animate-twinkle {
+    animation: twinkle 2s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-jingle {
+    animation: jingle 1s ease-in-out infinite;
+  }
+
+  .animate-sparkle {
+    animation: sparkle 1.5s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite;
+  }
+
+  .bg-festive-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--santa-red)) 0%,
+      hsl(var(--santa-red-dark)) 100%
+    );
+  }
+
+  .bg-winter-gradient {
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--winter-blue)) 0%,
+      hsl(var(--winter-blue-light)) 100%
+    );
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(
+      45deg,
+      hsl(var(--christmas-gold)) 0%,
+      hsl(var(--christmas-gold)) 25%,
+      hsl(var(--christmas-gold)) 75%,
+      hsl(var(--christmas-gold)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    background-size: 200% auto;
+    animation: shine 3s linear infinite;
+  }
+
+  .candy-cane-pattern {
+    background: repeating-linear-gradient(
+      45deg,
+      hsl(var(--candy-cane-red)) 0px,
+      hsl(var(--candy-cane-red)) 20px,
+      white 20px,
+      white 40px
+    );
+    background-size: 200% 200%;
+    animation: candyCaneStripe 10s linear infinite;
+  }
+
+  .border-festive {
+    border: 2px solid;
+    border-image: linear-gradient(
+      45deg,
+      hsl(var(--holly-green)) 0%,
+      hsl(var(--santa-red)) 50%,
+      hsl(var(--holly-green)) 100%
+    ) 1;
+  }
+
+  .frost-effect {
+    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glow-effect {
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+  }
+}
+
+/* === Component Styles === */
+@layer components {
+  .festive-button {
+    @apply bg-festive-gradient text-white font-bold py-3 px-6 rounded-full
+           shadow-lg transition-all duration-300 hover:scale-105 
+           hover:shadow-xl active:scale-95;
+  }
+
+  .christmas-card {
+    @apply bg-white/90 backdrop-blur-md rounded-xl p-6 shadow-xl
+           border border-white/20 transition-all duration-300
+           hover:shadow-2xl hover:scale-[1.02];
+  }
+
+  .santa-input {
+    @apply border-2 border-santa-red/20 rounded-lg px-4 py-2
+           focus:border-santa-red focus:ring-2 focus:ring-santa-red/50
+           transition-all duration-300;
+  }
+}
+
+/* === Accessibility === */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.reduce-motion {
+  @apply motion-reduce:transform-none motion-reduce:animate-none;
+}
+
+/* === Print Styles === */
+@media print {
+  .snowflake {
+    display: none;
+  }
+  
+  * {
+    animation: none !important;
+  }
+}
+
+/* === Responsive Design === */
+:root {
+  --font-size-xs: clamp(0.75rem, 2vw, 0.875rem);
+  --font-size-sm: clamp(0.875rem, 2.5vw, 1rem);
+  --font-size-base: clamp(1rem, 3vw, 1.125rem);
+  --font-size-lg: clamp(1.125rem, 3.5vw, 1.25rem);
+  --font-size-xl: clamp(1.25rem, 4vw, 1.5rem);
+  --font-size-2xl: clamp(1.5rem, 5vw, 2rem);
+  --font-size-3xl: clamp(2rem, 6vw, 3rem);
+  --font-size-4xl: clamp(2.5rem, 7vw, 4rem);
+  
+  --space-xs: clamp(0.75rem, 2vw, 1rem);
+  --space-sm: clamp(1rem, 3vw, 1.5rem);
+  --space-md: clamp(1.5rem, 4vw, 2rem);
+  --space-lg: clamp(2rem, 5vw, 3rem);
+  --space-xl: clamp(3rem, 6vw, 4rem);
+  
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+}
+
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-sm);
+  padding-right: var(--space-sm);
+  max-width: var(--container-xl);
+}
+
+.grid-responsive {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.focus-visible:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.btn-responsive {
+  @apply rounded-full font-medium transition-all duration-200;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-base);
+}
+
+@media (min-width: 768px) {
+  .btn-responsive {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-size-lg);
+  }
+}
+
+@media (hover: none) {
+  .touch-hover {
+    @apply hover:transform-none hover:shadow-none;
+  }
+
+}:root {
+  --santa-red-rgb: 220, 38, 38;
 }
