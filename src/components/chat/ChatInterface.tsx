@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Bell, Send, X, Gift, RefreshCw,
-  MailOpen, ChevronDown, Menu, MessageSquare,
-  ArrowLeft, ArrowRight 
+  MailOpen, Menu,
+  ArrowLeft
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +22,7 @@ import { ChatHistoryPanel } from './ChatHistoryPanel'
 import { QuickPrompts } from './QuickPrompts'
 import { GiftTrackingPanel } from './GiftTrackingPanel'
 import type { ChatUIProps, ChatMessageProps } from '@/types/chat'
+import type { Gift as GiftType } from '@/types/chat'
 import { cn } from '@/lib/utils'
 
 function ChatMessage({ message, onRetry }: ChatMessageProps) {
@@ -127,7 +128,7 @@ export function ChatInterface({ sessionId, parentEmail, onSessionEnd }: ChatUIPr
     scrollToBottom()
   }
 
-  const handleGiftUpdate = (id: string, updates: Partial<Gift>) => {
+  const handleGiftUpdate = (id: string, updates: Partial<GiftType>) => {
     updateGift(id, updates)
   }
 

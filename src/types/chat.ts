@@ -1,5 +1,3 @@
-// src/types/chat.ts
-
 export interface Message {
   id: string
   role: 'user' | 'assistant'
@@ -15,6 +13,7 @@ export interface Gift {
   details?: string
   firstMentioned: number
   mentionCount: number
+  category?: string
 }
 
 export interface ChatSession {
@@ -49,6 +48,7 @@ export interface ChatContextType {
   dispatch: React.Dispatch<ChatAction>
   sendMessage: (content: string) => Promise<void>
   endSession: () => Promise<void>
+  updateGift: (id: string, updates: Partial<Gift>) => void
 }
 
 export interface EmailGateState {
@@ -61,6 +61,7 @@ export interface ChatUIProps {
   sessionId: string
   parentEmail: string
   onSessionEnd?: () => void
+  isPreview?: boolean
 }
 
 export interface ChatMessageProps {
@@ -73,3 +74,15 @@ export interface GiftListProps {
   gifts: Gift[]
   className?: string
 }
+
+export interface GiftUpdateOptions {
+  id: string
+  priority?: 'high' | 'medium' | 'low'
+  details?: string
+  category?: string
+  mentionCount?: number
+}
+
+export type MessageStatus = 'sending' | 'sent' | 'error'
+export type Priority = 'high' | 'medium' | 'low'
+export type ChatStatus = 'initializing' | 'ready' | 'error'

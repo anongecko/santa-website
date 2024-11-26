@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useReducer, useCallback } from 'react'
-import type { ChatState, ChatAction, ChatContextType } from '@/types/chat'
+import type { ChatState, ChatAction, ChatContextType, Gift } from '@/types/chat'
 import { generateSantaResponse } from '@/lib/ai-service'
 
 const initialState: ChatState = {
@@ -101,7 +101,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
     const messageId = crypto.randomUUID()
 
-    // Add user message
     dispatch({
       type: 'ADD_MESSAGE',
       payload: {
@@ -116,20 +115,17 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_TYPING', payload: true })
 
     try {
-      // Get response from Santa
       const response = await generateSantaResponse(content, {
         messages: state.messages,
         sessionId: state.session.id,
         childEmail: state.session.parentEmail
       })
 
-      // Update user message status
       dispatch({
         type: 'UPDATE_MESSAGE',
         payload: { id: messageId, status: 'sent' }
       })
 
-      // Add Santa's response
       dispatch({
         type: 'ADD_MESSAGE',
         payload: {
@@ -141,7 +137,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         }
       })
 
-      // Process any detected gifts
       if (response.gifts?.length) {
         response.gifts.forEach(gift => {
           const existingGift = state.gifts.find(g => g.name.toLowerCase() === gift.toLowerCase())
@@ -204,8 +199,21 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state.session])
 
+  const updateGift = useCallback((id: string, updates: Partial<Gift>) => {
+    dispatch({
+      type: 'UPDATE_GIFT',
+      payload: { id, ...updates }
+    })
+  }, [])
+
   return (
-    <ChatContext.Provider value={{ state, dispatch, sendMessage, endSession }}>
+    <ChatContext.Provider value={{ 
+      state, 
+      dispatch, 
+      sendMessage, 
+      endSession,
+      updateGift 
+    }}>
       {children}
     </ChatContext.Provider>
   )
