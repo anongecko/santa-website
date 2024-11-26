@@ -4,11 +4,14 @@ import { useState, useCallback } from 'react'
 import type { EmailGateState } from '@/types/chat'
 import { validateEmail } from '@/lib/utils'
 
-export function useEmailGate({ 
-  onComplete 
-}: { 
-  onComplete: (email: string) => Promise<void> 
-}) {
+interface EmailGateProps {
+  onComplete: {
+    (email: string): Promise<void>
+    type?: undefined
+  }
+}
+
+export function useEmailGate({ onComplete }: EmailGateProps) {
   const [state, setState] = useState<EmailGateState>({
     status: 'idle',
     email: '',
@@ -16,11 +19,8 @@ export function useEmailGate({
 
   const handleSubmit = useCallback(async (event?: React.FormEvent) => {
     event?.preventDefault()
-    
-    // Reset any previous errors
     setState(prev => ({ ...prev, error: undefined }))
 
-    // Validate email format
     if (!validateEmail(state.email)) {
       setState(prev => ({
         ...prev,
