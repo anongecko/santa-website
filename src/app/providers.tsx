@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { SparklesCore } from "@/components/ui/sparkles"
 import { cn } from "@/lib/utils"
 import { ChatProvider } from "@/context/chat-context"
+import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/ui/toaster"
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -35,11 +36,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
       <ChatProvider>
         {children}
       </ChatProvider>
       <Toaster />
-    </>
+    </ThemeProvider>
   )
 }
