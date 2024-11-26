@@ -1,5 +1,3 @@
-import { ReadableStream } from 'stream/web'
-
 interface StreamChunk {
   choices: Array<{
     delta: {
