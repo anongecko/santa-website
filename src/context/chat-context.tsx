@@ -3,6 +3,20 @@
 import { createContext, useContext, useReducer, useCallback } from 'react'
 import type { ChatState, ChatAction, ChatContextType, Gift } from '@/types/chat'
 import { aiService } from '@/lib/ai-service'
+import { createReadableStream, streamToString } from '@/lib/stream-helpers'
+
+type AIResponse = {
+  text: string
+  gifts?: string[]
+  usage: any
+  metadata: {
+    model: any
+    sessionId: string
+    timestamp: number
+  }
+}
+
+type StreamResponse = AsyncGenerator<string, void, unknown>
 
 const initialState: ChatState = {
   status: 'initializing',
@@ -93,14 +107,73 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
 
+function isStreamResponse(response: AIResponse | StreamResponse): response is StreamResponse {
+  return 'next' in response && typeof response.next === 'function'
+}
+
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(chatReducer, initialState)
+
+  const handleResponseContent = useCallback(async (response: AIResponse | StreamResponse) => {
+    let content: string
+    let gifts: string[] | undefined
+
+    if (isStreamResponse(response)) {
+      const stream = createReadableStream(response)
+      content = await streamToString(stream)
+    } else {
+      content = response.text
+      gifts = response.gifts
+    }
+
+    const messageId = crypto.randomUUID()
+    dispatch({
+      type: 'ADD_MESSAGE',
+      payload: {
+        id: messageId,
+        role: 'assistant',
+        content,
+        timestamp: Date.now(),
+        status: 'sent'
+      }
+    })
+
+    if (gifts?.length) {
+      gifts.forEach(gift => {
+        const existingGift = state.gifts.find(g => 
+          g.name.toLowerCase() === gift.toLowerCase()
+        )
+        
+        if (existingGift) {
+          dispatch({
+            type: 'UPDATE_GIFT',
+            payload: {
+              id: existingGift.id,
+              mentionCount: existingGift.mentionCount + 1
+            }
+          })
+        } else {
+          dispatch({
+            type: 'ADD_GIFT',
+            payload: {
+              id: crypto.randomUUID(),
+              name: gift,
+              priority: 'medium',
+              firstMentioned: Date.now(),
+              mentionCount: 1
+            }
+          })
+        }
+      })
+    }
+
+    return content
+  }, [state.gifts])
 
   const sendMessage = useCallback(async (content: string) => {
     if (!state.session) return
 
     const messageId = crypto.randomUUID()
-
     dispatch({
       type: 'ADD_MESSAGE',
       payload: {
@@ -126,47 +199,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         payload: { id: messageId, status: 'sent' }
       })
 
-      if (response.text) {
-        dispatch({
-          type: 'ADD_MESSAGE',
-          payload: {
-            id: crypto.randomUUID(),
-            role: 'assistant',
-            content: response.text,
-            timestamp: Date.now(),
-            status: 'sent'
-          }
-        })
-
-        if (response.gifts?.length) {
-          response.gifts.forEach(gift => {
-            const existingGift = state.gifts.find(g => g.name.toLowerCase() === gift.toLowerCase())
-            
-            if (existingGift) {
-              dispatch({
-                type: 'UPDATE_GIFT',
-                payload: {
-                  id: existingGift.id,
-                  mentionCount: existingGift.mentionCount + 1
-                }
-              })
-            } else {
-              dispatch({
-                type: 'ADD_GIFT',
-                payload: {
-                  id: crypto.randomUUID(),
-                  name: gift,
-                  priority: 'medium',
-                  firstMentioned: Date.now(),
-                  mentionCount: 1
-                }
-              })
-            }
-          })
-        }
-      }
+      await handleResponseContent(response)
 
     } catch (error) {
+      console.error('Error in sendMessage:', error)
       dispatch({
         type: 'UPDATE_MESSAGE',
         payload: { id: messageId, status: 'error' }
@@ -178,7 +214,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     } finally {
       dispatch({ type: 'SET_TYPING', payload: false })
     }
-  }, [state.session, state.messages, state.gifts])
+  }, [state.session, state.messages, handleResponseContent])
 
   const endSession = useCallback(async () => {
     if (!state.session) return
