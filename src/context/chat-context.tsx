@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useReducer, useCallback } from 'react'
 import type { ChatState, ChatAction, ChatContextType, Gift } from '@/types/chat'
-import { generateSantaResponse } from '@/lib/ai-service'
+import { aiService } from '@/lib/ai-service'
 
 const initialState: ChatState = {
   status: 'initializing',
@@ -115,7 +115,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_TYPING', payload: true })
 
     try {
-      const response = await generateSantaResponse(content, {
+      const response = await aiService.generateSantaResponse(content, {
         messages: state.messages,
         sessionId: state.session.id,
         childEmail: state.session.parentEmail
@@ -126,42 +126,44 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         payload: { id: messageId, status: 'sent' }
       })
 
-      dispatch({
-        type: 'ADD_MESSAGE',
-        payload: {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: response.text,
-          timestamp: Date.now(),
-          status: 'sent'
-        }
-      })
-
-      if (response.gifts?.length) {
-        response.gifts.forEach(gift => {
-          const existingGift = state.gifts.find(g => g.name.toLowerCase() === gift.toLowerCase())
-          
-          if (existingGift) {
-            dispatch({
-              type: 'UPDATE_GIFT',
-              payload: {
-                id: existingGift.id,
-                mentionCount: existingGift.mentionCount + 1
-              }
-            })
-          } else {
-            dispatch({
-              type: 'ADD_GIFT',
-              payload: {
-                id: crypto.randomUUID(),
-                name: gift,
-                priority: 'medium',
-                firstMentioned: Date.now(),
-                mentionCount: 1
-              }
-            })
+      if (response.text) {
+        dispatch({
+          type: 'ADD_MESSAGE',
+          payload: {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: response.text,
+            timestamp: Date.now(),
+            status: 'sent'
           }
         })
+
+        if (response.gifts?.length) {
+          response.gifts.forEach(gift => {
+            const existingGift = state.gifts.find(g => g.name.toLowerCase() === gift.toLowerCase())
+            
+            if (existingGift) {
+              dispatch({
+                type: 'UPDATE_GIFT',
+                payload: {
+                  id: existingGift.id,
+                  mentionCount: existingGift.mentionCount + 1
+                }
+              })
+            } else {
+              dispatch({
+                type: 'ADD_GIFT',
+                payload: {
+                  id: crypto.randomUUID(),
+                  name: gift,
+                  priority: 'medium',
+                  firstMentioned: Date.now(),
+                  mentionCount: 1
+                }
+              })
+            }
+          })
+        }
       }
 
     } catch (error) {
