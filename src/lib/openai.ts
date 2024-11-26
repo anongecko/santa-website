@@ -1,8 +1,8 @@
-import { ChatMessage } from '@/types/chat'
+import { Message } from '@/types/chat'
 
 type GenerateSantaResponseOptions = {
   sessionId: string
-  previousMessages: ChatMessage[]
+  previousMessages: Message[]
 }
 
 export async function generateSantaResponse(
@@ -28,11 +28,30 @@ export async function generateSantaResponse(
 
     const data = await response.json()
     return {
-      reply: data.reply,
+      text: data.reply,
       gifts: data.gifts || [],
+      usage: data.usage,
+      metadata: {
+        sessionId: options.sessionId,
+        timestamp: Date.now()
+      }
     }
   } catch (error) {
     console.error('Error generating Santa response:', error)
     throw error
+  }
+}
+
+export type SantaResponse = {
+  text: string
+  gifts?: string[]
+  usage?: {
+    prompt_tokens: number
+    completion_tokens: number
+    total_tokens: number
+  }
+  metadata: {
+    sessionId: string
+    timestamp: number
   }
 }
