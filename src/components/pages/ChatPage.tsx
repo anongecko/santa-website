@@ -12,7 +12,7 @@ const DynamicSnow = dynamic(() => Promise.resolve(Snow), {
 export default function ChatPageComponent() {
   return (
     <ClientLayout>
-      <div className="relative min-h-screen bg-[#1a1b1e]">
+      <div className="relative min-h-screen bg-[#1a1b1e] text-white">
         <div className="fixed inset-0 pointer-events-none opacity-30">
           <DynamicSnow density={0.3} />
         </div>

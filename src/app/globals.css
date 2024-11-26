@@ -19,27 +19,53 @@
     --cozy-cream: 30 25% 97%;
     
     /* UI Foundation Colors */
-    --background: var(--snow-white);
-    --foreground: 224 71.4% 4.1%;
-    --card: var(--snow-white);
-    --card-foreground: 224 71.4% 4.1%;
-    --popover: var(--snow-white);
-    --popover-foreground: 224 71.4% 4.1%;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
     --primary: var(--santa-red);
     --primary-foreground: var(--snow-white);
     --secondary: var(--holly-green);
     --secondary-foreground: var(--snow-white);
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
     --accent: var(--christmas-gold);
-    --accent-foreground: 224 71.4% 4.1%;
+    --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: var(--snow-white);
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
     --ring: var(--santa-red);
     --radius: 0.75rem;
   }
+
+  .dark {
+    --background: 20 14.3% 4.1%;
+    --foreground: 0 0% 95%;
+    --card: 24 9.8% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 95%;
+    --primary: var(--santa-red);
+    --primary-foreground: var(--snow-white);
+    --secondary: var(--holly-green);
+    --secondary-foreground: var(--snow-white);
+    --muted: 0 0% 15%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: var(--christmas-gold);
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 85.7% 97.3%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: var(--santa-red);
+  }
+}
+
+body {
+  @apply bg-background text-foreground;
 }
 
 /* === Snow Animation === */

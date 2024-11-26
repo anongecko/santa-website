@@ -19,20 +19,22 @@ const Snow = dynamic(() => import('@/components/animations/Snow').then(mod => mo
 export default function HomePage() {
   return (
     <ClientLayout>
-      <Header />
-      <main className="relative min-h-screen">
-        <div className="fixed inset-0 pointer-events-none">
-          <Snow />
-        </div>
-        <Hero />
-        <AboutSection />
-        <HowItWorksSection />
-        <FeaturesSection />
-        <SafetyTrustSection />
-        <NorthPoleMailRoom />
-      </main>
-      <Footer />
-      <MobileNav />
+      <div className="min-h-screen bg-background text-foreground">
+        <Header />
+        <main className="relative">
+          <div className="fixed inset-0 pointer-events-none">
+            <Snow />
+          </div>
+          <Hero />
+          <AboutSection />
+          <HowItWorksSection />
+          <FeaturesSection />
+          <SafetyTrustSection />
+          <NorthPoleMailRoom />
+        </main>
+        <Footer />
+        <MobileNav />
+      </div>
     </ClientLayout>
   )
 }
