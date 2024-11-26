@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Gift, Star, X, ShoppingCart, ChevronRight, TagIcon } from 'lucide-react'
+import { Gift as GiftIcon, Star, X, ShoppingCart, ChevronRight, TagIcon, AlertCircle } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -14,26 +14,49 @@ import {
   Badge,
   badgeVariants
 } from "@/components/ui/badge"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { formatDistanceToNow } from 'date-fns'
+import type { Gift } from '@/types/chat'
 
 interface GiftTrackingProps {
   isOpen: boolean
   onClose: () => void
-  gifts: Array<{
-    id: string
-    name: string
-    priority: 'high' | 'medium' | 'low'
-    firstMentioned: number
-    mentionCount: number
-    category?: string
-  }>
+  gifts: Gift[]
   onUpdateGift: (id: string, updates: Partial<Gift>) => void
 }
 
 const GIFT_CATEGORIES = [
-  'Toys', 'Books', 'Games', 'Electronics', 
-  'Art Supplies', 'Sports', 'Music', 'Other'
+  { id: 'toys', label: 'Toys', icon: '🧸' },
+  { id: 'books', label: 'Books', icon: '📚' },
+  { id: 'games', label: 'Games', icon: '🎮' },
+  { id: 'electronics', label: 'Electronics', icon: '📱' },
+  { id: 'art', label: 'Art Supplies', icon: '🎨' },
+  { id: 'sports', label: 'Sports', icon: '⚽' },
+  { id: 'music', label: 'Music', icon: '🎵' },
+  { id: 'other', label: 'Other', icon: '🎁' }
 ]
+
+const priorityInfo = {
+  high: { 
+    color: "text-red-500 bg-red-500/10 border-red-500/20",
+    label: "High Priority",
+    description: "Top of the wishlist" 
+  },
+  medium: { 
+    color: "text-yellow-500 bg-yellow-500/10 border-yellow-500/20",
+    label: "Medium Priority",
+    description: "Nice to have" 
+  },
+  low: { 
+    color: "text-green-500 bg-green-500/10 border-green-500/20",
+    label: "Low Priority",
+    description: "Just a thought" 
+  }
+}
 
 export function GiftTrackingPanel({ 
   isOpen, 
@@ -41,14 +64,8 @@ export function GiftTrackingPanel({
   gifts,
   onUpdateGift
 }: GiftTrackingProps) {
-  const priorityColors = {
-    high: "text-red-500 bg-red-500/10 border-red-500/20",
-    medium: "text-yellow-500 bg-yellow-500/10 border-yellow-500/20",
-    low: "text-green-500 bg-green-500/10 border-green-500/20"
-  }
-
   const handlePriorityChange = (giftId: string) => {
-    const priorities: Array<'high' | 'medium' | 'low'> = ['high', 'medium', 'low']
+    const priorities: Array<Gift['priority']> = ['high', 'medium', 'low']
     const gift = gifts.find(g => g.id === giftId)
     if (!gift) return
     
@@ -56,6 +73,14 @@ export function GiftTrackingPanel({
     const nextPriority = priorities[(currentIndex + 1) % priorities.length]
     onUpdateGift(giftId, { priority: nextPriority })
   }
+
+  const sortedGifts = [...gifts].sort((a, b) => {
+    const priorityOrder = { high: 0, medium: 1, low: 2 }
+    if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+      return priorityOrder[a.priority] - priorityOrder[b.priority]
+    }
+    return b.mentionCount - a.mentionCount
+  })
 
   return (
     <motion.div
@@ -68,7 +93,7 @@ export function GiftTrackingPanel({
     >
       <div className="flex items-center justify-between p-4 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <Gift className="w-4 h-4 text-santa-red" />
+          <GiftIcon className="w-4 h-4 text-santa-red" />
           <h2 className="font-semibold text-white/80">Wishlist</h2>
           <Badge variant="secondary" className="text-xs">
             {gifts.length}
@@ -95,10 +120,10 @@ export function GiftTrackingPanel({
           </div>
         ) : (
           <div className="space-y-4">
-            {gifts.map(gift => (
+            {sortedGifts.map(gift => (
               <Card 
                 key={gift.id} 
-                className="bg-[#2d2e32] border-white/10"
+                className="bg-[#2d2e32] border-white/10 hover:bg-[#35363a] transition-colors"
               >
                 <CardHeader className="p-4 pb-2">
                   <div className="flex items-start justify-between">
@@ -111,18 +136,25 @@ export function GiftTrackingPanel({
                         {formatDistanceToNow(gift.firstMentioned, { addSuffix: true })}
                       </CardDescription>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={cn(
-                        "px-2 h-6 text-xs rounded-full",
-                        priorityColors[gift.priority]
-                      )}
-                      onClick={() => handlePriorityChange(gift.id)}
-                    >
-                      {gift.priority}
-                      <ChevronRight className="w-3 h-3 ml-1" />
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={cn(
+                            "px-2 h-6 text-xs rounded-full",
+                            priorityInfo[gift.priority].color
+                          )}
+                          onClick={() => handlePriorityChange(gift.id)}
+                        >
+                          {priorityInfo[gift.priority].label}
+                          <ChevronRight className="w-3 h-3 ml-1" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{priorityInfo[gift.priority].description}</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
@@ -132,24 +164,37 @@ export function GiftTrackingPanel({
                   </div>
                   {gift.category && (
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="outline" className="text-xs text-white/60">
-                        {gift.category}
+                      <Badge 
+                        variant="outline" 
+                        className={cn(
+                          "text-xs text-white/60",
+                          "flex items-center gap-1"
+                        )}
+                      >
+                        {GIFT_CATEGORIES.find(c => c.id === gift.category)?.icon}
+                        {GIFT_CATEGORIES.find(c => c.id === gift.category)?.label}
                       </Badge>
                     </div>
                   )}
                   {!gift.category && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {GIFT_CATEGORIES.slice(0, 3).map(category => (
-                        <Button
-                          key={category}
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 text-xs text-white/40 hover:text-white"
-                          onClick={() => onUpdateGift(gift.id, { category })}
-                        >
-                          <TagIcon className="w-3 h-3 mr-1" />
-                          {category}
-                        </Button>
+                        <Tooltip key={category.id}>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 text-xs text-white/40 hover:text-white"
+                              onClick={() => onUpdateGift(gift.id, { category: category.id })}
+                            >
+                              <span className="mr-1">{category.icon}</span>
+                              {category.label}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Set as {category.label.toLowerCase()} category</p>
+                          </TooltipContent>
+                        </Tooltip>
                       ))}
                     </div>
                   )}
@@ -162,4 +207,3 @@ export function GiftTrackingPanel({
     </motion.div>
   )
 }
-
