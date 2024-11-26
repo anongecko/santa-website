@@ -73,21 +73,48 @@ interface MessageBubbleProps {
 function MessageBubble({ message, isVisible, onComplete }: MessageBubbleProps) {
   const controls = useAnimation()
   const [showFeature, setShowFeature] = useState(false)
+  const [displayedText, setDisplayedText] = useState("")
+  const [isTypingComplete, setIsTypingComplete] = useState(false)
 
   useEffect(() => {
-    if (isVisible) {
+    if (!isVisible) return
+
+    if (message.role === 'assistant') {
+      setDisplayedText("")
+      let index = 0
+      const typingInterval = setInterval(() => {
+        if (index < message.content.length) {
+          setDisplayedText(prev => prev + message.content[index])
+          index++
+        } else {
+          clearInterval(typingInterval)
+          setIsTypingComplete(true)
+          controls.start({
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.3 }
+          }).then(() => {
+            if (message.feature) {
+              setShowFeature(true)
+            }
+            onComplete?.()
+          })
+        }
+      }, 30)
+
+      return () => clearInterval(typingInterval)
+    } else {
+      setDisplayedText(message.content)
+      setIsTypingComplete(true)
       controls.start({
         opacity: 1,
         y: 0,
         transition: { duration: 0.5, ease: "easeOut" }
       }).then(() => {
         onComplete?.()
-        if (message.feature) {
-          setShowFeature(true)
-        }
       })
     }
-  }, [isVisible, controls, onComplete, message.feature])
+  }, [isVisible, message, controls, onComplete])
 
   return (
     <motion.div
@@ -104,7 +131,19 @@ function MessageBubble({ message, isVisible, onComplete }: MessageBubbleProps) {
           ? "bg-santa-red text-white" 
           : "bg-background border border-border"
       )}>
-        <p className="text-sm md:text-base">{message.content}</p>
+        <p className="text-sm md:text-base whitespace-pre-wrap">
+          {displayedText}
+          {message.role === 'assistant' && !isTypingComplete && (
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 0.8, repeat: Infinity }}
+              className="inline-block ml-1"
+            >
+              ▋
+            </motion.span>
+          )}
+        </p>
       </div>
 
       {message.feature && showFeature && (
@@ -123,7 +162,6 @@ function MessageBubble({ message, isVisible, onComplete }: MessageBubbleProps) {
     </motion.div>
   )
 }
-
 interface ChatPreviewProps {
   onComplete?: () => void
 }

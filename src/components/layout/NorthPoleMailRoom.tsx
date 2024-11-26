@@ -143,6 +143,7 @@ function GiftCard({ gift, index }: GiftCardProps) {
   )
 }
 
+// Only showing the changes needed - the interfaces and card components remain the same
 export function NorthPoleMailRoom() {
   const [ref, inView] = useInView({
     threshold: 0.1,
@@ -150,7 +151,7 @@ export function NorthPoleMailRoom() {
   })
 
   return (
-    <section className="relative py-32 overflow-hidden bg-gradient-to-b from-background via-background/50 to-background">
+    <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-b from-background via-background/50 to-background">
       {/* Decorative Elements */}
       <Snow className="opacity-30" />
       <div className="absolute inset-0 bg-[url('/patterns/mail.svg')] opacity-5" />
@@ -160,9 +161,9 @@ export function NorthPoleMailRoom() {
           ref={ref}
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          className="text-center mb-16"
+          className="text-center space-y-3 mb-16"
         >
-          <SectionTitle>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-santa-red">
             North Pole Mail Room{" "}
             <motion.span
               animate={{
@@ -177,13 +178,13 @@ export function NorthPoleMailRoom() {
             >
               ✉️
             </motion.span>
-          </SectionTitle>
+          </h2>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-muted-foreground max-w-3xl mx-auto"
+            className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
             Every chat with Santa creates a magical, organized wishlist delivered straight 
             to parents' inboxes with helpful shopping insights.
@@ -192,35 +193,38 @@ export function NorthPoleMailRoom() {
 
         {/* Email Preview */}
         <div className="max-w-4xl mx-auto mb-16">
-          <Card className="relative overflow-hidden">
-            <motion.div
-              animate={{
-                y: [-2, 2, -2]
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="absolute -top-6 left-1/2 transform -translate-x-1/2"
-            >
-              <Mail className="w-12 h-12 text-santa-red" />
-            </motion.div>
+          <Card className="relative overflow-visible bg-background shadow-xl pt-12 md:pt-14">
+            {/* Mail Icon Container */}
+            <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-0
+                           bg-background rounded-full p-3 shadow-lg">
+              <motion.div
+                animate={{
+                  y: [-2, 2, -2]
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <Mail className="w-8 h-8 md:w-10 md:h-10 text-santa-red" />
+              </motion.div>
+            </div>
 
-            <CardHeader className="mt-6">
+            <CardHeader>
               <div className="space-y-2 text-center">
                 <div className="text-sm text-muted-foreground">{sampleWishlist.dateCreated}</div>
-                <CardTitle className="text-2xl">
+                <CardTitle className="text-xl md:text-2xl text-santa-red">
                   {sampleWishlist.childName}'s Christmas Wishlist
                 </CardTitle>
               </div>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="space-y-8">
               {/* Child's Interests */}
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-santa-red" />
+              <div>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-santa-red">
+                  <Heart className="w-5 h-5" />
                   Conversation Insights
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -231,7 +235,7 @@ export function NorthPoleMailRoom() {
                       animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                       transition={{ delay: i * 0.2 }}
                       className="flex items-center gap-2 p-3 rounded-lg bg-background/50 
-                               border border-border/50"
+                               border border-border/50 hover:shadow-md transition-shadow duration-300"
                     >
                       <Star className="w-4 h-4 text-christmas-gold" />
                       <span className="text-sm">{highlight}</span>
@@ -242,8 +246,8 @@ export function NorthPoleMailRoom() {
 
               {/* Gift List */}
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Gift className="w-5 h-5 text-santa-red" />
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-santa-red">
+                  <Gift className="w-5 h-5" />
                   Wishlist Items
                 </h3>
                 {sampleWishlist.gifts.map((gift, index) => (
@@ -270,7 +274,7 @@ export function NorthPoleMailRoom() {
             {
               icon: Tag,
               title: "Gift Insights",
-              description: "Detailed context from your child's conversation"
+              description: "Detailed context from each conversation"
             }
           ].map((feature, i) => (
             <motion.div

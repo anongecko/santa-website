@@ -6,15 +6,27 @@ import {
   ChevronRight, Bell, ArrowRight,
   Shield, ExternalLink, Send
 } from "lucide-react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Player } from "@lottiefiles/react-lottie-player"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SparkleButton } from "@/components/animations/Sparkles"
+import { LucideIcon } from 'lucide-react'
 
-const steps = [
+interface Step {
+  id: number
+  title: string
+  description: string
+  icon: LucideIcon
+  color: string
+  animation: string
+  details: string[]
+  preview: React.ReactNode
+}
+
+const STEPS: Step[] = [
   {
     id: 1,
     title: "Parent Setup",
@@ -162,29 +174,30 @@ const steps = [
   }
 ]
 
-function Preview({
-  step,
-  isLeft,
-  isActive
-}: {
-  step: typeof steps[0]
+interface PreviewProps {
+  step: Step
   isLeft: boolean
-  isActive: boolean
-}) {
+}
+
+function Preview({ step, isLeft }: PreviewProps) {
   return (
-    <div className="grid md:grid-cols-2 gap-10 items-center min-h-[250px]">
+    <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center min-h-[200px] md:min-h-[400px] w-full">
       <div
         className={cn(
-          "p-6 rounded-xl border bg-background h-full",
+          "p-4 md:p-6 rounded-xl border bg-background w-full",
+          "min-h-[200px] md:min-h-[400px] max-h-[400px] overflow-y-auto",
           "order-2",
           isLeft && "md:order-1"
         )}
       >
-        {step.preview}
+        <div className="h-full flex items-center">
+          {step.preview}
+        </div>
       </div>
 
       <div className={cn(
-        "w-full max-w-sm mx-auto order-1 h-[300px]",
+        "w-full aspect-square md:aspect-auto md:h-[400px]",
+        "order-1",
         isLeft && "md:order-2"
       )}>
         <Player
@@ -199,15 +212,13 @@ function Preview({
   )
 }
 
-function StepColumn({ 
-  steps,
-  activeStep,
-  setActiveStep 
-}: { 
-  steps: typeof steps
-  activeStep: number 
+interface StepColumnProps {
+  steps: Step[]
+  activeStep: number
   setActiveStep: (step: number) => void
-}) {
+}
+
+function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {steps.map((step) => (
@@ -215,12 +226,14 @@ function StepColumn({
           key={step.id}
           className={cn(
             "relative p-4 rounded-xl transition-colors duration-300",
-            "hover:bg-background/50 cursor-pointer",
+            "min-h-[200px] md:min-h-[280px]",
+            "hover:bg-background/50 cursor-pointer overflow-hidden",
+            "flex flex-col",
             activeStep === step.id && "bg-background"
           )}
           onClick={() => setActiveStep(step.id)}
         >
-          <div className="space-y-3">
+          <div className="flex-1 space-y-3">
             <div className="flex items-start gap-3">
               <div className={cn(
                 "w-10 h-10 rounded-xl shrink-0",
@@ -247,22 +260,24 @@ function StepColumn({
               </div>
             </div>
 
-            <ul className={cn(
-              "grid gap-2 transition-all duration-300",
-              activeStep === step.id ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+            <div className={cn(
+              "transition-all duration-300",
+              activeStep === step.id 
+                ? "opacity-100 max-h-[200px]" 
+                : "opacity-0 max-h-0 md:max-h-[200px] md:opacity-40"
             )}>
-              <div className="overflow-hidden">
+              <div className="space-y-2">
                 {step.details.map((detail, i) => (
-                  <li
+                  <div
                     key={i}
                     className="flex items-center gap-2 text-sm py-1"
                   >
                     <ChevronRight className={cn("w-3 h-3", `text-${step.color}`)} />
-                    <span>{detail}</span>
-                  </li>
+                    <span className="line-clamp-2">{detail}</span>
+                  </div>
                 ))}
               </div>
-            </ul>
+            </div>
           </div>
         </div>
       ))}
@@ -276,26 +291,24 @@ export function HowItWorksSection() {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
     if (inView) {
       interval = setInterval(() => {
-        setActiveStep(current => current < steps.length ? current + 1 : 1)
+        setActiveStep(current => current < STEPS.length ? current + 1 : 1)
       }, 8000)
     }
-
-    return () => {
-      if (interval) clearInterval(interval)
-    }
+    return () => clearInterval(interval)
   }, [inView])
+
+  const currentStep = STEPS.find(step => step.id === activeStep) || STEPS[0]
 
   return (
     <section 
       ref={ref}
-      className="py-20 md:py-32"
+      className="py-12 md:py-20 lg:py-32"
       data-section="how-it-works"
     >
       <div className="container max-w-7xl mx-auto px-4">
-        <div className="text-center space-y-3 mb-16">
+        <div className="text-center space-y-3 mb-8 md:mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-santa-red">
             How It Works
           </h2>
@@ -304,55 +317,57 @@ export function HowItWorksSection() {
           </p>
         </div>
 
-        <div className="space-y-5">
+        <div className="space-y-6 md:space-y-8">
           <StepColumn 
-            steps={steps}
+            steps={STEPS}
             activeStep={activeStep}
             setActiveStep={setActiveStep}
           />
 
-          <div className="min-h-[285px] relative">
-            <div className="absolute inset-0 flex items-center justify-center">
+          <div className="relative w-full">
+            <div className="flex items-center justify-center">
               <Preview 
-                step={steps[activeStep - 1]}
+                step={currentStep}
                 isLeft={activeStep % 2 === 0}
-                isActive={true}
               />
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-            <Link href="/chat">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6 md:mt-8">
+            <Link href="/chat" className="w-full sm:w-auto">
               <Button
-                className="bg-white border-2 border-white text-slate-900 hover:bg-white/90
-                       text-lg px-8 py-6 rounded-full shadow-lg 
-                       transition-all duration-300 hover:scale-105
-                       hover:shadow-xl active:scale-95 min-w-[200px]"
+                className="w-full sm:w-auto bg-white border-2 border-white text-slate-900 
+                         hover:bg-white/90 text-base md:text-lg px-6 md:px-8 py-4 md:py-6 
+                         rounded-full shadow-lg transition-all duration-300 hover:scale-105
+                         hover:shadow-xl active:scale-95 min-w-[180px] md:min-w-[200px]"
               >
                 <span className="flex items-center gap-2">
                   Chat Now
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 md:w-5 h-4 md:h-5" />
                 </span>
               </Button>
             </Link>
             
-            <SparkleButton>
+            <SparkleButton className="w-full sm:w-auto">
               <Link 
                 href="https://dexscreener.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
+                className="w-full sm:w-auto"
               >
                 <Button
                   className={cn(
+                    "w-full sm:w-auto",
                     "bg-[#3c8d0d] hover:bg-[#4bae11]",
                     "text-white shadow-lg hover:shadow-xl",
                     "transition-all duration-300 hover:scale-105",
-                    "text-lg px-8 py-6 rounded-full min-w-[200px]"
+                    "text-base md:text-lg px-6 md:px-8 py-4 md:py-6",
+                    "rounded-full min-w-[180px] md:min-w-[200px]"
                   )}
                 >
                   <span className="flex items-center gap-2">
                     View Chart
-                    <ExternalLink className="w-5 h-5" />
+                    <ExternalLink className="w-4 md:w-5 h-4 md:h-5" />
                   </span>
                 </Button>
               </Link>
@@ -363,4 +378,3 @@ export function HowItWorksSection() {
     </section>
   )
 }
-

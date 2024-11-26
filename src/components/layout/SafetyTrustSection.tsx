@@ -1,12 +1,10 @@
 'use client'
 
-import { motion, useAnimationControls } from "framer-motion"
+import { motion } from "framer-motion"
 import { useInView } from "react-intersection-observer"
-import { SectionTitle } from "./shared"
 import {
-  Shield, Lock, Eye, Users, Bell, CheckCircle,
-  UserCheck, Database, Filter, AlertCircle, Settings,
-  Mail, MessageSquare
+  Shield, Lock, Eye, Users, 
+  Filter, MessageSquare, Mail
 } from "lucide-react"
 import {
   Card,
@@ -33,54 +31,78 @@ const securityFeatures = [
       "Email notifications of chat activity",
       "Session duration controls",
       "Chat history access",
-      "Wishlist management"
+      "Wishlist organization"
     ]
   },
   {
-    title: "Content Safety",
+    title: "Santa's Safety",
     description: "AI-powered content monitoring and filtering",
     icon: Filter,
     color: "holly-green",
     features: [
-      "Real-time content moderation",
-      "Age-appropriate responses",
-      "Topic filtering",
-      "Inappropriate content blocking"
+      "Child-friendly responses",
+      "Christmas-themed content",
+      "Positive interactions",
+      "Automated content filtering"
     ]
   },
   {
-    title: "Privacy First",
-    description: "Strong privacy protection measures",
+    title: "North Pole Privacy",
+    description: "Safe and secure chat experience",
     icon: Lock,
     color: "winter-blue",
     features: [
-      "No personal data storage",
-      "Encrypted communications",
-      "Anonymous sessions",
-      "Automatic data cleanup"
+      "Parent-authorized sessions",
+      "Secure communications",
+      "No data storage",
+      "24-hour chat cleanup"
     ]
   }
 ]
 
 const trustIndicators = [
   {
-    title: "24/7 Monitoring",
-    description: "Continuous AI safety checks",
+    title: "Always Watching",
+    description: "Santa's helpers monitor chats 24/7",
     icon: Eye
   },
   {
-    title: "Secure Email",
-    description: "Protected parent communications",
+    title: "Parent Updates",
+    description: "Instant wishlist delivery to parents",
     icon: Mail
   },
   {
-    title: "Chat Safety",
-    description: "Real-time content filtering",
+    title: "Santa Safe",
+    description: "Child-friendly Christmas magic",
     icon: MessageSquare
   }
 ]
 
-function SecurityCard({ feature, index }: { feature: typeof securityFeatures[0], index: number }) {
+const trustPolicies = [
+  {
+    title: "Child Protection",
+    content: "We never store personal information about children. Chat sessions are temporary and automatically cleaned up after 24 hours. Parent emails are only used for delivering Christmas wishlists."
+  },
+  {
+    title: "Christmas Spirit",
+    content: "Our AI Santa is trained to maintain magical, child-friendly conversations focused on Christmas wishes, holiday traditions, and spreading joy and positivity throughout the holiday season."
+  },
+  {
+    title: "Parent Magic",
+    content: "Parents receive instant notifications about their child's Christmas wishes and can review wishlists. The magic begins only after parent verification - just like sending a letter to Santa!"
+  },
+  {
+    title: "North Pole Security",
+    content: "All chat sessions are monitored by Santa's helpers. We use advanced AI systems and follow strict guidelines to ensure every conversation stays magical, safe, and filled with Christmas spirit."
+  }
+]
+
+interface SecurityCardProps {
+  feature: typeof securityFeatures[0]
+  index: number
+}
+
+function SecurityCard({ feature, index }: SecurityCardProps) {
   const [ref, inView] = useInView({
     threshold: 0.2,
     triggerOnce: true
@@ -94,7 +116,6 @@ function SecurityCard({ feature, index }: { feature: typeof securityFeatures[0],
       transition={{ duration: 0.5, delay: index * 0.2 }}
     >
       <Card className="relative overflow-hidden group hover:shadow-xl transition-all duration-300">
-        {/* Animated Background */}
         <div className={cn(
           "absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500",
           `bg-gradient-to-br from-${feature.color} to-transparent`
@@ -136,7 +157,7 @@ function SecurityCard({ feature, index }: { feature: typeof securityFeatures[0],
                 transition={{ duration: 0.3, delay: index * 0.2 + i * 0.1 }}
                 className="flex items-center gap-3"
               >
-                <CheckCircle className={cn(
+                <Shield className={cn(
                   "w-5 h-5",
                   `text-${feature.color}`
                 )} />
@@ -150,25 +171,6 @@ function SecurityCard({ feature, index }: { feature: typeof securityFeatures[0],
   )
 }
 
-const trustPolicies = [
-  {
-    title: "Data Protection",
-    content: "We never store personal information about children. Chat sessions are temporary and automatically deleted after 24 hours. Parent emails are encrypted and only used for wishlist delivery."
-  },
-  {
-    title: "Content Guidelines",
-    content: "Our AI is trained to maintain child-friendly conversations, focusing on Christmas wishes, holiday traditions, and positive behavior. Inappropriate topics are automatically filtered."
-  },
-  {
-    title: "Parent Involvement",
-    content: "Parents receive email notifications about chat activity and can review wishlists. No conversations can begin without parent email verification."
-  },
-  {
-    title: "Technical Security",
-    content: "All communications are encrypted. We use industry-standard security protocols and regular security audits to protect all user interactions."
-  }
-]
-
 export function SafetyTrustSection() {
   const [ref, inView] = useInView({
     threshold: 0.1,
@@ -176,8 +178,7 @@ export function SafetyTrustSection() {
   })
 
   return (
-    <section className="relative py-32 overflow-hidden">
-      {/* Decorative Background */}
+    <section className="relative py-20 md:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-[url('/patterns/shield.svg')] opacity-5" />
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background" />
 
@@ -186,9 +187,9 @@ export function SafetyTrustSection() {
           ref={ref}
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          className="text-center mb-16"
+          className="text-center space-y-3 mb-16"
         >
-          <SectionTitle>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-santa-red">
             Safety & Trust{" "}
             <motion.span
               animate={{
@@ -202,22 +203,21 @@ export function SafetyTrustSection() {
               }}
               className="inline-block"
             >
-              🛡️
+              🎅
             </motion.span>
-          </SectionTitle>
+          </h2>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-muted-foreground max-w-3xl mx-auto"
+            className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            Your child's safety is our top priority. Every feature is designed with
-            protection and peace of mind at its core.
+            Your child's safety is our top priority. Every feature is designed to keep
+            the Christmas magic safe and secure.
           </motion.p>
         </motion.div>
 
-        {/* Trust Indicators */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           {trustIndicators.map((indicator, i) => (
             <motion.div
@@ -252,14 +252,12 @@ export function SafetyTrustSection() {
           ))}
         </div>
 
-        {/* Main Security Features */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {securityFeatures.map((feature, index) => (
             <SecurityCard key={index} feature={feature} index={index} />
           ))}
         </div>
 
-        {/* Trust Policies */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
@@ -280,7 +278,6 @@ export function SafetyTrustSection() {
           </Accordion>
         </motion.div>
 
-        {/* Trust Badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
