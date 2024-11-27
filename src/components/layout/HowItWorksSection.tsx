@@ -4,7 +4,8 @@ import { useInView } from "react-intersection-observer"
 import { 
   Mail, MessageCircle, Gift, Star, 
   ChevronRight, Bell, ArrowRight,
-  Shield, ExternalLink, Send
+  Shield, ExternalLink, Send,
+  Pause, Play
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Player } from "@lottiefiles/react-lottie-player"
@@ -14,7 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SparkleButton } from "@/components/animations/Sparkles"
 import { LucideIcon } from 'lucide-react'
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface Step {
   id: number
@@ -42,23 +43,43 @@ const STEPS: Step[] = [
       "No account needed"
     ],
     preview: (
-      <div className="flex flex-col gap-4">
+    <div className="flex flex-col items-center justify-center gap-6 w-full max-w-md mx-auto">
+      <div className="w-full space-y-3">
+        <div className="text-sm text-muted-foreground mb-2">Parent's Email</div>
         <Input 
           type="email"
           placeholder="parent@email.com"
           defaultValue="northpole@santa.com"
-          className="bg-background text-foreground"
+          className="bg-background text-foreground shadow-sm"
           disabled
         />
-        <Button 
-          className="w-1/2 mx-auto bg-santa-red hover:bg-santa-red-dark"
-        >
-          <Send className="w-4 h-4 mr-2" />
-          Start Magic
-        </Button>
       </div>
-    )
-  },
+
+      <div className="w-full space-y-4">
+        <Button 
+          className="w-full bg-santa-red hover:bg-santa-red-dark text-white
+                   shadow-lg hover:shadow-xl transition-all duration-300
+                   flex items-center justify-center gap-2 py-6"
+        >
+          <Mail className="w-5 h-5" />
+          <span className="text-base">Verify Email</span>
+        </Button>
+        
+        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Shield className="w-4 h-4" />
+          <span>Secure & Private</span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 text-sm text-muted-foreground/80 
+                    bg-background/50 px-4 py-2 rounded-full border">
+        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+        Ready to spread Christmas magic
+      </div>
+    </div>
+  )
+  }
+,
   {
     id: 2,
     title: "Start Chatting",
@@ -182,28 +203,27 @@ interface PreviewProps {
 
 function Preview({ step, isLeft }: PreviewProps) {
   return (
-    <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center min-h-[150px] md:min-h-[300px] w-full">
+    <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center w-full">
+      {/* Content Preview */}
       <div
         className={cn(
-          "p-4 md:p-6 rounded-xl border bg-background/95 dark:bg-background/20 w-full",
-          "min-h-[200px] md:min-h-[300px] max-h-[300px]",
-          "overflow-y-auto shadow-sm",
+          "p-4 md:p-6 rounded-xl border bg-background/95 dark:bg-background/20",
+          "w-full h-full min-h-[200px]",
           "flex items-center justify-center",
           "order-2",
           isLeft && "md:order-1"
         )}
       >
-        <div className="w-full max-w-[90%] mx-auto">
-          <div className="flex items-center justify-center">
-            {step.preview}
-          </div>
+        <div className="w-full max-w-[90%]">
+          {step.preview}
         </div>
       </div>
 
+      {/* Animation Container */}
       <div className={cn(
-        "w-full aspect-square md:aspect-auto md:h-[300px]",
-        "flex items-center justify-center",
-        "order-1",
+        "w-full aspect-square md:aspect-auto",
+        "relative flex items-center justify-center",
+        "order-1 min-h-[200px] md:min-h-[300px]",
         isLeft && "md:order-2"
       )}>
         <Player
@@ -212,11 +232,13 @@ function Preview({ step, isLeft }: PreviewProps) {
           loop={true}
           autoplay={true}
           style={{ 
-            maxWidth: '100%',
-            maxHeight: '300px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain'
           }}
         />
       </div>
@@ -238,7 +260,7 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
           key={step.id}
           className={cn(
             "relative p-4 rounded-xl transition-all duration-300",
-            "min-h-[200px] md:min-h-[280px]",
+            "min-h-[160px] md:min-h-[220px]",
             "hover:bg-background/50 dark:hover:bg-background/10",
             "hover:shadow-md dark:hover:shadow-background/5",
             "cursor-pointer overflow-hidden",
@@ -270,12 +292,28 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
                 "transition-transform duration-300",
                 activeStep === step.id && "scale-110"
               )}>
-                <step.icon className={cn(
-                  "w-5 h-5",
-                  `text-${step.color}`,
-                  "transition-transform duration-300",
-                  activeStep === step.id && "animate-pulse"
-                )} />
+                <motion.div
+                  animate={
+                    activeStep === step.id 
+                      ? {
+                          scale: [1, 1.05, 1],
+                          opacity: [1, 0.85, 1],
+                        }
+                      : { scale: 1, opacity: 1 }
+                  }
+                  transition={{
+                    duration: 3,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                    repeatType: "mirror"
+                  }}
+                >
+                  <step.icon className={cn(
+                    "w-5 h-5",
+                    `text-${step.color}`,
+                    "transition-transform duration-300"
+                  )} />
+                </motion.div>
               </div>
               
               <div className="flex-1 min-w-0">
@@ -288,17 +326,30 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
                     {step.title}
                   </h3>
                   {activeStep === step.id && (
-                    <div className={cn(
-                      "w-4 h-4 rounded-full shrink-0",
-                      `bg-${step.color}/10 dark:bg-${step.color}/5`,
-                      "flex items-center justify-center"
-                    )}>
-                      <Star className={cn(
-                        "w-2.5 h-2.5",
-                        `text-${step.color}`,
-                        "animate-pulse"
-                      )} />
-                    </div>
+                    <motion.div
+                      className={cn(
+                        "w-4 h-4 rounded-full shrink-0",
+                        `bg-${step.color}/10 dark:bg-${step.color}/5`,
+                        "flex items-center justify-center"
+                      )}
+                    >
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.1, 1],
+                          opacity: [0.7, 1, 0.7],
+                        }}
+                        transition={{
+                          duration: 2,
+                          ease: "easeInOut",
+                          repeat: Infinity,
+                        }}
+                      >
+                        <Star className={cn(
+                          "w-2.5 h-2.5",
+                          `text-${step.color}`
+                        )} />
+                      </motion.div>
+                    </motion.div>
                   )}
                 </div>
                 <p className={cn(
@@ -327,12 +378,24 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
                       activeStep === step.id && "translate-x-1"
                     )}
                   >
-                    <ChevronRight className={cn(
-                      "w-3 h-3",
-                      `text-${step.color}`,
-                      "transition-transform duration-300",
-                      activeStep === step.id && "animate-bounce"
-                    )} />
+                    <motion.div
+                      animate={
+                        activeStep === step.id 
+                          ? { x: [0, 2, 0] }
+                          : { x: 0 }
+                      }
+                      transition={{
+                        duration: 2,
+                        ease: "easeInOut",
+                        repeat: Infinity,
+                        delay: i * 0.2
+                      }}
+                    >
+                      <ChevronRight className={cn(
+                        "w-3 h-3",
+                        `text-${step.color}`
+                      )} />
+                    </motion.div>
                     <span className={cn(
                       "line-clamp-2",
                       "text-muted-foreground dark:text-gray-400",
@@ -350,11 +413,14 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
     </div>
   )
 }
-
 export function HowItWorksSection() {
   const [activeStep, setActiveStep] = useState(1)
   const [autoPlayEnabled, setAutoPlayEnabled] = useState(true)
-  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true })
+  const [ref, inView] = useInView({ 
+    threshold: 0.1, 
+    triggerOnce: false,
+    rootMargin: '50px' 
+  })
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -368,50 +434,60 @@ export function HowItWorksSection() {
 
   const currentStep = STEPS.find(step => step.id === activeStep) || STEPS[0]
 
-  // Pause autoplay when user interacts
   const handleStepChange = (stepId: number) => {
     setAutoPlayEnabled(false)
     setActiveStep(stepId)
   }
 
+  const handleMouseLeave = () => {
+    setAutoPlayEnabled(true)
+  }
+
   return (
     <section 
       ref={ref}
+      onMouseLeave={handleMouseLeave}
       className={cn(
         "relative py-12 md:py-20 lg:py-32 overflow-hidden",
-        "bg-background dark:bg-background/50"
+        "bg-background dark:bg-background/50",
+        "min-h-[calc(100vh-4rem)]",
+        "flex flex-col items-center justify-center"
       )}
       data-section="how-it-works"
     >
       {/* Background Elements */}
-      <div className="absolute inset-0 dark:bg-gradient-to-b dark:from-background dark:to-background/80" />
-      <div className="absolute inset-0 bg-[url('/patterns/grid.svg')] opacity-5" />
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 dark:bg-gradient-to-b dark:from-background dark:to-background/80" />
+        <div className="absolute inset-0 bg-[url('/patterns/grid.svg')] opacity-5" />
+      </div>
 
-      <div className="container relative z-10 max-w-7xl mx-auto px-4">
+      <div className="container relative z-10 max-w-7xl mx-auto px-4 w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.5 }}
-          className="text-center space-y-3 mb-8 md:mb-16"
+          className="text-center space-y-4 mb-12 md:mb-20"
         >
           <h2 className={cn(
             "text-3xl md:text-4xl lg:text-5xl font-bold",
             "bg-clip-text text-transparent",
             "bg-gradient-to-r from-santa-red to-santa-red-light",
-            "dark:from-santa-red-light dark:to-santa-red"
+            "dark:from-santa-red-light dark:to-santa-red",
+            "px-4 inline-block"
           )}>
             How It Works
           </h2>
-          <p className="text-lg text-muted-foreground dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
             Experience the magic in four simple steps
           </p>
         </motion.div>
 
-        <div className="space-y-8 md:space-y-12">
+        <div className="space-y-12 md:space-y-16 w-full max-w-[1400px] mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.5, delay: 0.2 }}
+            className="w-full"
           >
             <StepColumn 
               steps={STEPS}
@@ -420,26 +496,75 @@ export function HowItWorksSection() {
             />
           </motion.div>
 
+          {/* Progress Indicators */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="flex justify-center gap-3 pt-4"
+          >
+            {STEPS.map((step) => (
+              <motion.button
+                key={step.id}
+                onClick={() => handleStepChange(step.id)}
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-500",
+                  activeStep === step.id 
+                    ? "w-8 bg-santa-red" 
+                    : "w-4 bg-santa-red/20 hover:bg-santa-red/40"
+                )}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              />
+            ))}
+            <motion.button
+              className={cn(
+                "ml-2 p-2 rounded-full",
+                "text-santa-red/60 hover:text-santa-red",
+                "transition-colors duration-200"
+              )}
+              onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {autoPlayEnabled ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+            </motion.button>
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.5, delay: 0.4 }}
             className="relative w-full"
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background to-background/0 dark:from-background/0 dark:via-background/20 dark:to-background/0" />
-            <div className="relative z-10 flex items-center justify-center">
-              <Preview 
-                step={currentStep}
-                isLeft={activeStep % 2 === 0}
-              />
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background to-background/0 dark:from-background/0 dark:via-background/20 dark:to-background/0" />
             </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="relative z-10 flex items-center justify-center w-full max-w-5xl mx-auto"
+              >
+                <Preview 
+                  step={currentStep}
+                  isLeft={activeStep % 2 === 0}
+                />
+              </motion.div>
+            </AnimatePresence>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.5, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mt-8 md:mt-12"
+            className="flex flex-col sm:flex-row gap-6 justify-center mt-8 md:mt-16 w-full max-w-2xl mx-auto px-4"
           >
             <Link href="/chat" className="w-full sm:w-auto">
               <Button
@@ -453,16 +578,15 @@ export function HowItWorksSection() {
                   "transition-all duration-300",
                   "hover:scale-105 hover:shadow-xl active:scale-95",
                   "min-w-[180px] md:min-w-[200px]",
-                  "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
               >
                 <motion.span 
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 whitespace-nowrap"
                   whileHover={{ x: 5 }}
                   transition={{ duration: 0.2 }}
                 >
                   Chat Now
-                  <ArrowRight className="w-4 md:w-5 h-4 md:h-5" />
+                  <ArrowRight className="w-4 md:w-5 h-4 md:h-5 flex-shrink-0" />
                 </motion.span>
               </Button>
             </Link>
@@ -488,12 +612,12 @@ export function HowItWorksSection() {
                   )}
                 >
                   <motion.span 
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 whitespace-nowrap"
                     whileHover={{ x: 5 }}
                     transition={{ duration: 0.2 }}
                   >
                     View Chart
-                    <ExternalLink className="w-4 md:w-5 h-4 md:h-5" />
+                    <ExternalLink className="w-4 md:w-5 h-4 md:h-5 flex-shrink-0" />
                   </motion.span>
                 </Button>
               </Link>

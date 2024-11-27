@@ -66,60 +66,24 @@ const demoConversation = [
 
 interface MessageBubbleProps {
   message: typeof demoConversation[0]
-  isVisible: boolean
-  onComplete?: () => void
+  index: number
 }
 
-function MessageBubble({ message, isVisible, onComplete }: MessageBubbleProps) {
-  const controls = useAnimation()
+function MessageBubble({ message, index }: MessageBubbleProps) {
   const [showFeature, setShowFeature] = useState(false)
-  const [displayedText, setDisplayedText] = useState("")
-  const [isTypingComplete, setIsTypingComplete] = useState(false)
 
   useEffect(() => {
-    if (!isVisible) return
-
-    if (message.role === 'assistant') {
-      setDisplayedText("")
-      let index = 0
-      const typingInterval = setInterval(() => {
-        if (index < message.content.length) {
-          setDisplayedText(prev => prev + message.content[index])
-          index++
-        } else {
-          clearInterval(typingInterval)
-          setIsTypingComplete(true)
-          controls.start({
-            opacity: 1,
-            y: 0,
-            transition: { duration: 0.3 }
-          }).then(() => {
-            if (message.feature) {
-              setShowFeature(true)
-            }
-            onComplete?.()
-          })
-        }
-      }, 30)
-
-      return () => clearInterval(typingInterval)
-    } else {
-      setDisplayedText(message.content)
-      setIsTypingComplete(true)
-      controls.start({
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.5, ease: "easeOut" }
-      }).then(() => {
-        onComplete?.()
-      })
+    if (message.feature) {
+      const timer = setTimeout(() => setShowFeature(true), 500)
+      return () => clearTimeout(timer)
     }
-  }, [isVisible, message, controls, onComplete])
+  }, [message.feature])
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      animate={controls}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
       className={cn(
         "flex flex-col max-w-[80%] space-y-2",
         message.role === 'assistant' ? "items-start" : "items-end ml-auto"
@@ -132,17 +96,7 @@ function MessageBubble({ message, isVisible, onComplete }: MessageBubbleProps) {
           : "bg-background border border-border"
       )}>
         <p className="text-sm md:text-base whitespace-pre-wrap">
-          {displayedText}
-          {message.role === 'assistant' && !isTypingComplete && (
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 1, 0] }}
-              transition={{ duration: 0.8, repeat: Infinity }}
-              className="inline-block ml-1"
-            >
-              ▋
-            </motion.span>
-          )}
+          {message.content}
         </p>
       </div>
 
@@ -150,7 +104,7 @@ function MessageBubble({ message, isVisible, onComplete }: MessageBubbleProps) {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ duration: 0.3 }}
           className="flex items-center gap-2"
         >
           <Badge variant="secondary" className="text-xs">
@@ -162,35 +116,25 @@ function MessageBubble({ message, isVisible, onComplete }: MessageBubbleProps) {
     </motion.div>
   )
 }
-interface ChatPreviewProps {
-  onComplete?: () => void
-}
 
-function ChatPreview({ onComplete }: ChatPreviewProps) {
-  const [visibleMessages, setVisibleMessages] = useState<number[]>([])
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [showTyping, setShowTyping] = useState(false)
-
-  const showNextMessage = useCallback(() => {
-    if (currentIndex < demoConversation.length) {
-      setShowTyping(true)
-      setTimeout(() => {
-        setShowTyping(false)
-        setVisibleMessages(prev => [...prev, currentIndex])
-        setCurrentIndex(prev => prev + 1)
-      }, 1500)
-    } else {
-      onComplete?.()
-    }
-  }, [currentIndex, onComplete])
+function ChatPreview() {
+  const [visibleCount, setVisibleCount] = useState(0)
 
   useEffect(() => {
-    showNextMessage()
+    const timer = setInterval(() => {
+      setVisibleCount(prev => {
+        if (prev < demoConversation.length) return prev + 1
+        clearInterval(timer)
+        return prev
+      })
+    }, 1000)
+    return () => clearInterval(timer)
   }, [])
 
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div className="relative rounded-2xl border bg-background shadow-xl overflow-hidden">
+        {/* Chat Header */}
         <div className="bg-santa-red p-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
             <Bell className="w-5 h-5 text-white" />
@@ -199,7 +143,11 @@ function ChatPreview({ onComplete }: ChatPreviewProps) {
             <h3 className="text-white font-semibold">Santa Claus</h3>
             <div className="text-white/80 text-sm flex items-center gap-2">
               <span className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-green-400" />
+                <motion.div 
+                  className="w-2 h-2 rounded-full bg-green-400"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
                 Online
               </span>
               <span>•</span>
@@ -208,48 +156,20 @@ function ChatPreview({ onComplete }: ChatPreviewProps) {
           </div>
         </div>
 
+        {/* Chat Messages */}
         <div className="h-[400px] overflow-y-auto p-4 space-y-4">
           <AnimatePresence>
-            {demoConversation.map((message, index) => (
-              visibleMessages.includes(index) && (
-                <MessageBubble
-                  key={message.id}
-                  message={message}
-                  isVisible={true}
-                  onComplete={showNextMessage}
-                />
-              )
+            {demoConversation.slice(0, visibleCount).map((message, index) => (
+              <MessageBubble
+                key={message.id}
+                message={message}
+                index={index}
+              />
             ))}
           </AnimatePresence>
-
-          {showTyping && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center gap-2 text-muted-foreground"
-            >
-              <div className="flex gap-1">
-                {[0, 1, 2].map((i) => (
-                  <motion.div
-                    key={i}
-                    className="w-2 h-2 rounded-full bg-santa-red"
-                    animate={{
-                      y: ['0%', '-50%', '0%']
-                    }}
-                    transition={{
-                      duration: 0.6,
-                      repeat: Infinity,
-                      delay: i * 0.2
-                    }}
-                  />
-                ))}
-              </div>
-              <span className="text-sm">Santa is typing...</span>
-            </motion.div>
-          )}
         </div>
 
+        {/* Chat Input */}
         <div className="border-t p-4">
           <div className="flex items-center gap-2">
             <div className="flex-1 rounded-full border bg-background px-4 py-2 text-sm text-muted-foreground">
@@ -262,6 +182,7 @@ function ChatPreview({ onComplete }: ChatPreviewProps) {
         </div>
       </div>
 
+      {/* Features Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
         {[
           {
@@ -284,8 +205,8 @@ function ChatPreview({ onComplete }: ChatPreviewProps) {
             key={i}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.2 }}
-            className="p-4 rounded-xl border bg-background/50 backdrop-blur-sm"
+            transition={{ delay: 0.4 + (i * 0.1) }}
+            className="p-4 rounded-xl border bg-background/50 backdrop-blur-sm hover:bg-background/70 transition-colors"
           >
             <feature.icon className="w-6 h-6 text-santa-red mb-2" />
             <h4 className="font-semibold mb-1">{feature.title}</h4>
@@ -300,40 +221,50 @@ function ChatPreview({ onComplete }: ChatPreviewProps) {
 export function FeaturesSection() {
   const [ref, inView] = useInView({
     threshold: 0.1,
-    triggerOnce: true
+    triggerOnce: true,
+    rootMargin: '50px'
   })
 
   return (
-    <section className="relative py-20 md:py-32 overflow-hidden" data-section="features">
-      <div className="absolute inset-0">
+    <section 
+      ref={ref}
+      className="relative py-20 md:py-32 overflow-hidden" 
+      data-section="features"
+    >
+      {/* Background decorations */}
+      <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[url('/patterns/grid.svg')] opacity-5" />
-        <div className="absolute inset-0" />
       </div>
 
       <ResponsiveContainer>
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : { opacity: 0 }}
-          className="space-y-16"
-        >
-        <div className="text-center space-y-3 mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-santa-red">
-           Experience the Magic 
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            See how Santa's AI powered chat creates magical moments and helps organize Xmas wishes.
-          </p>
-        </div>
-
+        <div className="space-y-16">
+          {/* Title section - Now outside the gradient overlay */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ delay: 0.4 }}
+            className="text-center space-y-3 mb-16 relative z-10"
           >
-            <ChatPreview />
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-santa-red">
+              Experience the Magic
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              See how Santa's AI powered chat creates magical moments and helps organize Xmas wishes.
+            </p>
           </motion.div>
 
+          {/* Chat preview section - With its own gradient background */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background -z-10" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.5 }}
+            >
+              <ChatPreview />
+            </motion.div>
+          </div>
+
+          {/* Buttons section */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/chat">
               <Button
@@ -346,10 +277,13 @@ export function FeaturesSection() {
                   "relative z-10"
                 )}
               >
-                <span className="flex items-center gap-2">
+                <motion.span 
+                  className="flex items-center gap-2"
+                  whileHover={{ x: 5 }}
+                >
                   Chat Now
                   <ArrowRight className="w-5 h-5" />
-                </span>
+                </motion.span>
               </Button>
             </Link>
             
@@ -370,15 +304,18 @@ export function FeaturesSection() {
                     "relative z-10"
                   )}
                 >
-                  <span className="flex items-center gap-2">
+                  <motion.span 
+                    className="flex items-center gap-2"
+                    whileHover={{ x: 5 }}
+                  >
                     View Chart
                     <ExternalLink className="w-5 h-5" />
-                  </span>
+                  </motion.span>
                 </Button>
               </Link>
             </SparkleButton>
           </div>
-        </motion.div>
+        </div>
       </ResponsiveContainer>
     </section>
   )

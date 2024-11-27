@@ -77,14 +77,56 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "slow-pulse": {
+          "0%, 100%": { 
+            opacity: "1",
+            transform: "scale(1)"
+          },
+          "50%": { 
+            opacity: "0.7",
+            transform: "scale(0.95)"
+          }
+        },
+        "slow-bounce": {
+          "0%, 100%": { 
+            transform: "translateY(0)",
+            animationTimingFunction: "cubic-bezier(0.8, 0, 1, 1)"
+          },
+          "50%": { 
+            transform: "translateY(-15%)",
+            animationTimingFunction: "cubic-bezier(0, 0, 0.2, 1)"
+          }
+        },
+        "float": {
+          "0%, 100%": { 
+            transform: "translateY(0)" 
+          },
+          "50%": { 
+            transform: "translateY(-5%)" 
+          }
+        },
+        "shine": {
+          "0%": { 
+            backgroundPosition: "200% center" 
+          },
+          "100%": { 
+            backgroundPosition: "-200% center" 
+          }
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "slow-pulse": "slow-pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "slow-bounce": "slow-bounce 2s ease-in-out infinite",
+        "float": "float 6s ease-in-out infinite",
+        "shine": "shine 8s ease-in-out infinite"
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+  ],
 } satisfies Config
 
 export default config
