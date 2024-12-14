@@ -1,50 +1,29 @@
-'use client'
+'use client';
 
-import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Bell, Send, X, Gift, RefreshCw,
-  MailOpen, Menu,
-  ArrowLeft
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Card } from '@/components/ui/card'
-import { useChat } from '@/context/chat-context'
-import { SparkleButton } from '@/components/animations/Sparkles'
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { ChatHistoryPanel } from './ChatHistoryPanel'
-import { QuickPrompts } from './QuickPrompts'
-import { GiftTrackingPanel } from './GiftTrackingPanel'
-import type { ChatUIProps, ChatMessageProps } from '@/types/chat'
-import type { Gift as GiftType } from '@/types/chat'
-import { cn } from '@/lib/utils'
+import { useEffect, useRef, useState } from 'react';
+import { Send, Bell, MailOpen, RotateCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useChat } from '@/context/chat-context';
+import { SparkleButton } from '@/components/animations/Sparkles';
+import { QuickPrompts } from './QuickPrompts';
+import type { ChatUIProps, Message } from '@/types/chat';
+import { cn } from '@/lib/utils';
 
-function ChatMessage({ message, onRetry }: ChatMessageProps) {
-  const isUser = message.role === 'user'
-  
+function ChatMessage({ message, onRetry }: { message: Message; onRetry?: () => void }) {
+  const isUser = message.role === 'user';
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
-    >
+    <div className={cn('flex', isUser ? 'justify-end' : 'justify-start')}>
       <div
         className={cn(
-          "group relative max-w-[80%] rounded-lg px-4 py-2",
-          isUser 
-            ? "bg-santa-red text-white"
-            : "bg-[#1a1b1e] border border-white/10 text-white/90"
+          'group relative max-w-[80%] rounded-lg px-4 py-2',
+          isUser ? 'bg-[hsl(var(--santa-red))] text-white' : 'bg-white shadow-md text-gray-800'
         )}
       >
         {message.content}
-        
         {message.status === 'error' && onRetry && (
           <Button
             variant="ghost"
@@ -52,306 +31,247 @@ function ChatMessage({ message, onRetry }: ChatMessageProps) {
             onClick={onRetry}
             className="absolute -right-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RotateCw className="w-4 h-4" />
           </Button>
         )}
       </div>
-    </motion.div>
-  )
+    </div>
+  );
 }
 
 export function ChatInterface({ sessionId, parentEmail, onSessionEnd }: ChatUIProps) {
-  // State
-  const [input, setInput] = useState('')
-  const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false)
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
-  const [showPrompts, setShowPrompts] = useState(true)
-  const scrollRef = useRef<HTMLDivElement>(null)
-  
-  // Chat Context
-  const { state, sendMessage, endSession, updateGift } = useChat()
-  const { messages, isTyping, gifts } = state
+  const [input, setInput] = useState('');
+  const [showPrompts, setShowPrompts] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { state, dispatch } = useChat();
+  const { messages, isTyping } = state;
 
-  // Effects
-  useEffect(() => {
-    if (messages.length > 0) {
-      setShowPrompts(false)
-    }
-    scrollToBottom()
-  }, [messages])
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isTyping) return;
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setIsHistoryOpen(false)
-        setIsGiftPanelOpen(false)
+    const messageContent = input.trim();
+    setInput('');
+    const messageId = crypto.randomUUID();
+    const aiMessageId = crypto.randomUUID();
+
+    // Add user message
+    dispatch({
+      type: 'ADD_MESSAGE',
+      payload: {
+        id: messageId,
+        role: 'user',
+        content: messageContent,
+        timestamp: Date.now(),
+        status: 'sending',
+      },
+    });
+
+    try {
+      dispatch({ type: 'SET_TYPING', payload: true });
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: messageContent,
+          sessionId,
+          parentEmail,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to send message');
+
+      // Update user message status
+      dispatch({
+        type: 'UPDATE_MESSAGE',
+        payload: { id: messageId, status: 'sent' },
+      });
+
+      // Add initial AI message
+      dispatch({
+        type: 'ADD_MESSAGE',
+        payload: {
+          id: aiMessageId,
+          role: 'assistant',
+          content: '',
+          timestamp: Date.now(),
+          status: 'sending',
+        },
+      });
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response stream');
+
+      const decoder = new TextDecoder();
+      let aiContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        aiContent += chunk;
+
+        // Update AI message with accumulated content
+        dispatch({
+          type: 'UPDATE_MESSAGE',
+          payload: {
+            id: aiMessageId,
+            role: 'assistant',
+            content: aiContent,
+            timestamp: Date.now(),
+            status: 'sent',
+          },
+        });
       }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      dispatch({
+        type: 'UPDATE_MESSAGE',
+        payload: { id: messageId, status: 'error' },
+      });
+      setInput(messageContent);
+    } finally {
+      dispatch({ type: 'SET_TYPING', payload: false });
     }
+  };
 
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  useEffect(() => {
+    if (sessionId && parentEmail && state.status === 'initializing') {
+      dispatch({
+        type: 'INITIALIZE_SESSION',
+        payload: {
+          id: sessionId,
+          parentEmail,
+          status: 'active',
+          startTime: Date.now(),
+          lastActive: Date.now(),
+        },
+      });
 
-  // Handlers
-  const scrollToBottom = () => {
+      fetch(`/api/chat/history?sessionId=${sessionId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.messages) {
+            data.messages.forEach((message: Message) => {
+              dispatch({
+                type: 'ADD_MESSAGE',
+                payload: { ...message, status: 'sent' },
+              });
+            });
+          }
+          if (data.gifts) {
+            data.gifts.forEach((gift: any) => {
+              dispatch({ type: 'ADD_GIFT', payload: gift });
+            });
+          }
+        })
+        .catch(console.error);
+    }
+  }, [sessionId, parentEmail, state.status, dispatch]);
+
+  useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
         top: scrollRef.current.scrollHeight,
-        behavior: 'smooth'
-      })
+        behavior: 'smooth',
+      });
     }
-  }
+  }, [messages]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim()) return
-    const message = input
-    setInput('')
-    await sendMessage(message)
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSubmit(e)
+      e.preventDefault();
+      void handleSubmit(e);
     }
-  }
-
-  const handleEnd = async () => {
-    await endSession()
-    onSessionEnd?.()
-  }
+  };
 
   const handlePromptSelect = (prompt: string) => {
-    setInput(prompt)
-    setShowPrompts(false)
-    scrollToBottom()
-  }
+    setInput(prompt);
+    setShowPrompts(false);
+  };
 
-  const handleGiftUpdate = (id: string, updates: Partial<GiftType>) => {
-    updateGift(id, updates)
-  }
-
-  const toggleMobilePanel = (panel: 'history' | 'gifts') => {
-    if (panel === 'history') {
-      setIsHistoryOpen(!isHistoryOpen)
-      setIsGiftPanelOpen(false)
-    } else {
-      setIsGiftPanelOpen(!isGiftPanelOpen)
-      setIsHistoryOpen(false)
-    }
-  }
-
-  // Main component render
   return (
-    <div className="relative h-full flex w-full max-w-[1800px] mx-auto">
-  {/* Left Panel - Chat History */}
-  <ChatHistoryPanel
-  isOpen={isHistoryOpen}
-  onClose={() => setIsHistoryOpen(false)}
-  sessions={[
-    {
-      id: sessionId,
-      date: new Date(),
-      preview: messages[messages.length - 1]?.content || "Start chatting with Santa!",
-      gifts: gifts.length
-    },
-    {
-      id: 'prev-1',
-      date: new Date(Date.now() - 86400000), // 1 day ago
-      preview: "Ho ho ho! Thank you for sharing your Christmas wishes!",
-      gifts: 3
-    },
-    {
-      id: 'prev-2',
-      date: new Date(Date.now() - 172800000), // 2 days ago
-      preview: "It was wonderful hearing about your kind deeds!",
-      gifts: 2
-    }
-  ]}
-  currentSessionId={sessionId}
-  onSessionClick={(id) => {
-    if (id === sessionId) {
-      setIsHistoryOpen(false)
-      return
-    }
-    // Handle switching to previous sessions
-    console.log('Loading previous session:', id)
-  }}
-/>
-      {/* Main Chat Area */}
-      <Card className={cn(
-        "flex-1 flex flex-col bg-[#2d2e32] border-white/10 shadow-2xl",
-        "transition-all duration-200",
-        (isHistoryOpen || isGiftPanelOpen) && "lg:opacity-90"
-      )}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#1a1b1e] text-white">
+    <div className="h-full">
+      <Card className="h-full flex flex-col bg-white/95 shadow-xl rounded-lg">
+        <header className="flex items-center justify-between px-4 py-4 border-b border-gray-100 bg-white rounded-t-lg">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden text-white/70 hover:text-white"
-              onClick={() => toggleMobilePanel('history')}
-            >
-              {isHistoryOpen ? (
-                <ArrowLeft className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
-            <motion.div
-              animate={{
-                rotate: [0, -10, 10, 0]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="w-10 h-10 rounded-full bg-santa-red/20 flex items-center justify-center"
-            >
-              <Bell className="w-5 h-5 text-santa-red" />
-            </motion.div>
+            <div className="w-10 h-10 rounded-full bg-[hsl(var(--santa-red))]/10 flex items-center justify-center">
+              <Bell className="w-5 h-5 text-[hsl(var(--santa-red))]" />
+            </div>
             <div>
-              <h3 className="font-semibold">Santa Claus</h3>
+              <h3 className="font-semibold text-gray-800">Santa Claus</h3>
               <div className="text-sm flex items-center gap-2">
                 <span className="flex items-center gap-1">
-                  <motion.div 
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="w-2 h-2 rounded-full bg-green-400" 
-                  />
-                  <span className="text-white/70">Online</span>
+                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                  <span className="text-gray-600">Online</span>
                 </span>
-                <span className="text-white/40">•</span>
-                <span className="text-white/70">North Pole</span>
+                <span className="text-gray-400">•</span>
+                <span className="text-gray-600">North Pole</span>
               </div>
             </div>
           </div>
-          
-          <div className="flex items-center gap-2">
-            {gifts.length > 0 && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => toggleMobilePanel('gifts')}
-                    className={cn(
-                      "text-white/70 hover:text-white hover:bg-white/10",
-                      isGiftPanelOpen && "bg-white/10 text-white"
-                    )}
-                  >
-                    <Gift className="w-5 h-5" />
-                    <motion.span 
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 
-                               text-white text-xs flex items-center justify-center"
-                    >
-                      {gifts.length}
-                    </motion.span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>View wishlist ({gifts.length} items)</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={handleEnd}
-                  className="text-white/70 hover:text-white hover:bg-white/10"
-                >
-                  <MailOpen className="w-5 h-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p>End chat and send wishlist to parent</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
 
-        {/* Messages */}
-        <ScrollArea ref={scrollRef} className="flex-1 p-4">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onSessionEnd}
+                className="text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+              >
+                <MailOpen className="w-5 h-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>End chat and send wishlist to parent</p>
+            </TooltipContent>
+          </Tooltip>
+        </header>
+
+        <ScrollArea ref={scrollRef} className="flex-1 p-4 bg-[#f8fafc]">
           {showPrompts && messages.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-8"
-            >
+            <div className="mb-8">
               <QuickPrompts onPromptSelect={handlePromptSelect} />
-            </motion.div>
+            </div>
           )}
           <div className="space-y-4">
-            <AnimatePresence initial={false} mode="popLayout">
-              {messages.map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  message={message}
-                  onRetry={
-                    message.status === 'error'
-                      ? () => sendMessage(message.content)
-                      : undefined
-                  }
-                />
-              ))}
-            </AnimatePresence>
-
-            {/* Typing Indicator */}
-            <AnimatePresence mode="wait">
-              {isTyping && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="flex items-center gap-2 text-white/50"
-                >
-                  <div className="flex gap-1">
-                    {[0, 1, 2].map((i) => (
-                      <motion.div
-                        key={i}
-                        className="w-2 h-2 rounded-full bg-santa-red"
-                        animate={{
-                          y: ['0%', '-50%', '0%']
-                        }}
-                        transition={{
-                          duration: 0.6,
-                          repeat: Infinity,
-                          delay: i * 0.2
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm">Santa is typing...</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {messages.map((message: Message) => (
+              <ChatMessage key={message.id} message={message} />
+            ))}
+            {isTyping && (
+              <div className="flex items-center gap-2 text-gray-500">
+                <div className="flex gap-1">
+                  {[0, 1, 2].map(i => (
+                    <div
+                      key={i}
+                      className="w-2 h-2 rounded-full bg-[hsl(var(--santa-red))] animate-bounce"
+                      style={{ animationDelay: `${i * 0.2}s` }}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm">Santa is typing...</span>
+              </div>
+            )}
           </div>
         </ScrollArea>
 
-        {/* Input */}
-        <form onSubmit={handleSubmit} className="p-4 border-t border-white/10">
+        <form onSubmit={handleSubmit} className="p-4 border-t border-gray-100 bg-white">
           <div className="flex gap-2">
             <Input
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type your message to Santa..."
-              className="flex-1 bg-[#1a1b1e] border-white/10 text-white placeholder:text-white/50"
+              className="flex-1 bg-gray-50 border-gray-200 text-gray-800 placeholder:text-gray-400 focus:border-[hsl(var(--santa-red))]/50"
               disabled={isTyping}
             />
             <SparkleButton>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 size="icon"
-                className="bg-santa-red hover:bg-santa-red-dark text-white"
+                className="bg-[hsl(var(--santa-red))] hover:bg-[hsl(var(--santa-red-dark))] text-white"
                 disabled={!input.trim() || isTyping}
               >
                 <Send className="w-5 h-5" />
@@ -360,51 +280,6 @@ export function ChatInterface({ sessionId, parentEmail, onSessionEnd }: ChatUIPr
           </div>
         </form>
       </Card>
-
-      {/* Right Panel - Gift Tracking */}
-      <GiftTrackingPanel
-        isOpen={isGiftPanelOpen}
-        onClose={() => setIsGiftPanelOpen(false)}
-        gifts={gifts}
-        onUpdateGift={handleGiftUpdate}
-      />
-
-      {/* Mobile Navigation Overlay */}
-      <AnimatePresence>
-        {(isHistoryOpen || isGiftPanelOpen) && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-10 lg:hidden"
-            onClick={() => {
-              setIsHistoryOpen(false)
-              setIsGiftPanelOpen(false)
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Mobile Panel Close Buttons */}
-      <AnimatePresence>
-        {(isHistoryOpen || isGiftPanelOpen) && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed top-4 right-4 z-50 lg:hidden"
-            onClick={() => {
-              setIsHistoryOpen(false)
-              setIsGiftPanelOpen(false)
-            }}
-          >
-            <div className="rounded-full bg-[#1a1b1e] border border-white/10 p-2">
-              <X className="w-5 h-5 text-white/70" />
-            </div>
-          </motion.button>
-        )}
-      </AnimatePresence>
     </div>
-  )
+  );
 }
-

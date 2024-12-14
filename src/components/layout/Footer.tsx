@@ -1,29 +1,27 @@
-'use client'
+'use client';
 
-import { motion } from "framer-motion"
-import { 
-  Heart, Star, Mail, Github, Twitter, 
-  Shield, Bell, ExternalLink, Clock
-} from "lucide-react"
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import { SparkleButton } from "@/components/animations/Sparkles"
+import { motion } from 'framer-motion';
+import { Heart, Mail, Twitter, Shield, Bell, ExternalLink, Clock } from 'lucide-react';
+import { useState } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import { SparkleButton } from '@/components/animations/Sparkles';
+import { TelegramIcon } from '@/components/icons/TelegramIcon';
 
-function FooterSection({ 
-  title, 
-  items 
-}: { 
-  title: string
-  items: Array<{ label: string; href: string; external?: boolean }>
+function FooterSection({
+  title,
+  items,
+}: {
+  title: string;
+  items: Array<{ label: string; href: string; external?: boolean }>;
 }) {
   return (
     <div className="space-y-4">
       <h3 className="font-semibold text-lg">{title}</h3>
       <ul className="space-y-2">
-        {items.map((item) => (
+        {items.map(item => (
           <motion.li
             key={item.href}
             initial={{ opacity: 0, x: -20 }}
@@ -33,11 +31,11 @@ function FooterSection({
             <Link
               href={item.href}
               className={cn(
-                "text-muted-foreground hover:text-foreground transition-colors",
-                "flex items-center gap-2 group"
+                'text-muted-foreground hover:text-foreground transition-colors',
+                'flex items-center gap-2 group'
               )}
-              target={item.external ? "_blank" : undefined}
-              rel={item.external ? "noopener noreferrer" : undefined}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noopener noreferrer' : undefined}
             >
               {item.label}
               {item.external && (
@@ -48,47 +46,45 @@ function FooterSection({
         ))}
       </ul>
     </div>
-  )
+  );
 }
 
 export function Footer() {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear();
 
   const footerSections = [
     {
-      title: "Quick Links",
+      title: 'Quick Links',
       items: [
-        { label: "Chat with Santa", href: "/chat" },
-        { label: "How It Works", href: "/#how-it-works" },
-        { label: "About", href: "/#about" },
-        { label: "FAQ", href: "/#faq" }
-      ]
+        { label: 'Chat with Santa', href: '/chat' },
+        { label: 'How It Works', href: '/#how-it-works' },
+        { label: 'About', href: '/#about' },
+        { label: 'FAQ', href: '/#faq' },
+      ],
     },
     {
-      title: "Information",
+      title: 'Socials',
       items: [
-        { label: "Privacy Policy", href: "/privacy" },
-        { label: "Terms of Use", href: "/terms" },
-        { label: "Cookie Policy", href: "/cookies" },
-        { label: "Child Safety", href: "/safety" }
-      ]
+        { label: 'Twitter', href: 'https://twitter.com', external: true },
+        { label: 'Telegram', href: 'https://telegram.me', external: true },
+        { label: 'DEX Screener', href: 'https://dexscreener.com/', external: true },
+        {
+          label: 'Raydium',
+          href: 'https://raydium.io/swap/?inputMint=sol&outputMint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R',
+          external: true,
+        },
+      ],
     },
-    {
-      title: "Connect",
-      items: [
-        { label: "GitHub", href: "https://github.com", external: true },
-        { label: "Twitter", href: "https://twitter.com", external: true },
-        { label: "Contact Us", href: "/contact" }
-      ]
-    }
-  ]
+  ];
 
   return (
     <footer className="relative">
       {/* Decorative Top Border */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r 
-                    from-transparent via-border to-transparent" />
-      
+      <div
+        className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r 
+                    from-transparent via-border to-transparent"
+      />
+
       {/* Main Content */}
       <div className="relative bg-background/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-16">
@@ -102,8 +98,10 @@ export function Footer() {
             >
               {/* Logo */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-santa-red/10 
-                             flex items-center justify-center">
+                <div
+                  className="w-10 h-10 rounded-full bg-santa-red/10 
+                             flex items-center justify-center"
+                >
                   <Bell className="w-5 h-5 text-santa-red" />
                 </div>
                 <div className="font-bold text-xl">Santa Chat</div>
@@ -117,9 +115,9 @@ export function Footer() {
               {/* Trust Badges */}
               <div className="flex flex-wrap gap-3">
                 {[
-                  { icon: Shield, text: "Child Safe" },
-                  { icon: Clock, text: "24/7 Support" },
-                  { icon: Heart, text: "Made with Love" }
+                  { icon: Shield, text: 'Child Safe' },
+                  { icon: Clock, text: '24/7 Support' },
+                  { icon: Heart, text: 'Made with Love' },
                 ].map((badge, i) => (
                   <div
                     key={i}
@@ -134,12 +132,8 @@ export function Footer() {
             </motion.div>
 
             {/* Navigation Sections */}
-            {footerSections.map((section) => (
-              <FooterSection
-                key={section.title}
-                title={section.title}
-                items={section.items}
-              />
+            {footerSections.map(section => (
+              <FooterSection key={section.title} title={section.title} items={section.items} />
             ))}
           </div>
 
@@ -158,11 +152,11 @@ export function Footer() {
                 <span>Made with</span>
                 <motion.div
                   animate={{
-                    scale: [1, 1.2, 1]
+                    scale: [1, 1.2, 1],
                   }}
                   transition={{
                     duration: 2,
-                    repeat: Infinity
+                    repeat: Infinity,
                   }}
                 >
                   <Heart className="w-4 h-4 text-santa-red" />
@@ -178,9 +172,9 @@ export function Footer() {
                 className="flex justify-start md:justify-end items-center gap-4"
               >
                 {[
-                  { icon: Github, href: "https://github.com" },
-                  { icon: Twitter, href: "https://twitter.com" },
-                  { icon: Mail, href: "mailto:santa@northpole.com" }
+                  { icon: Twitter, href: 'https://twitter.com' },
+                  { icon: TelegramIcon, href: 'https://t.me/yourchannel' },
+                  { icon: Mail, href: 'mailto:santa@northpole.com' },
                 ].map((social, i) => (
                   <Link
                     key={i}
@@ -197,32 +191,6 @@ export function Footer() {
           </div>
         </div>
       </div>
-
-      {/* Decorative Elements */}
-      <div className="absolute -top-12 left-0 right-0 h-24 
-                    bg-gradient-to-b from-transparent to-background/50 pointer-events-none" />
-      
-      {/* Animated Snowflakes */}
-      {Array.from({ length: 12 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-2 h-2 rounded-full bg-white/20"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `-${Math.random() * 20}%`,
-          }}
-          animate={{
-            y: ['0vh', '100vh'],
-            x: [0, Math.random() * 100 - 50]
-          }}
-          transition={{
-            duration: Math.random() * 5 + 5,
-            repeat: Infinity,
-            ease: "linear",
-            delay: -Math.random() * 5
-          }}
-        />
-      ))}
     </footer>
-  )
+  );
 }

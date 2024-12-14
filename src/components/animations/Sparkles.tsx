@@ -1,34 +1,29 @@
-'use client'
+'use client';
 
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface SparkleInstanceProps {
-  color?: string
-  size?: number
-  style?: React.CSSProperties
+  color?: string;
+  size?: number;
+  style?: React.CSSProperties;
 }
 
 interface SparklesProps {
-  children?: React.ReactNode
-  color?: string
-  variance?: number
-  minSize?: number
-  maxSize?: number
-  density?: number
-  className?: string
+  children?: React.ReactNode;
+  color?: string;
+  variance?: number;
+  minSize?: number;
+  maxSize?: number;
+  density?: number;
+  className?: string;
 }
 
-const DEFAULT_COLOR = 'hsl(var(--christmas-gold))'
+const DEFAULT_COLOR = 'hsl(var(--christmas-gold))';
 
-const generateSparkle = (
-  minSize: number,
-  maxSize: number,
-  variance: number,
-  color: string
-) => {
-  const size = Math.random() * (maxSize - minSize) + minSize
+const generateSparkle = (minSize: number, maxSize: number, variance: number, color: string) => {
+  const size = Math.random() * (maxSize - minSize) + minSize;
   return {
     id: crypto.randomUUID(),
     createdAt: Date.now(),
@@ -40,8 +35,8 @@ const generateSparkle = (
       zIndex: 2,
       transform: `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`,
     },
-  }
-}
+  };
+};
 
 const SparkleInstance = ({ color = DEFAULT_COLOR, size = 10, style }: SparkleInstanceProps) => {
   return (
@@ -58,7 +53,7 @@ const SparkleInstance = ({ color = DEFAULT_COLOR, size = 10, style }: SparkleIns
       }}
       transition={{
         duration: 0.8,
-        ease: "easeInOut",
+        ease: 'easeInOut',
         times: [0, 0.5, 1],
       }}
       className="absolute"
@@ -68,8 +63,8 @@ const SparkleInstance = ({ color = DEFAULT_COLOR, size = 10, style }: SparkleIns
         fill={color}
       />
     </motion.svg>
-  )
-}
+  );
+};
 
 export function Sparkles({
   children,
@@ -80,29 +75,29 @@ export function Sparkles({
   density = 1,
   className,
 }: SparklesProps) {
-  const [sparkles, setSparkles] = useState<Array<any>>([])
+  const [sparkles, setSparkles] = useState<Array<any>>([]);
 
   useEffect(() => {
     const generateSparkles = () => {
-      const now = Date.now()
-      const sparkleCount = Math.floor(Math.random() * 2 * density) + 1
+      const now = Date.now();
+      const sparkleCount = Math.floor(Math.random() * 2 * density) + 1;
       const newSparkles = Array.from({ length: sparkleCount }, () =>
         generateSparkle(minSize, maxSize, variance, color)
-      )
-      
+      );
+
       // Remove old sparkles and add new ones
       setSparkles(oldSparkles => [
         ...oldSparkles.filter(sparkle => now - sparkle.createdAt < 1000),
         ...newSparkles,
-      ])
-    }
+      ]);
+    };
 
-    const interval = setInterval(generateSparkles, 1000)
-    return () => clearInterval(interval)
-  }, [color, variance, minSize, maxSize, density])
+    const interval = setInterval(generateSparkles, 1000);
+    return () => clearInterval(interval);
+  }, [color, variance, minSize, maxSize, density]);
 
   return (
-    <span className={cn("inline-block relative", className)}>
+    <span className={cn('inline-block relative', className)}>
       <AnimatePresence mode="sync">
         {sparkles.map(sparkle => (
           <SparkleInstance
@@ -115,7 +110,7 @@ export function Sparkles({
       </AnimatePresence>
       <span className="relative inline-block z-1">{children}</span>
     </span>
-  )
+  );
 }
 
 // Wrapper component for adding sparkles to interactive elements
@@ -123,21 +118,22 @@ export function SparkleButton({
   children,
   className,
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { className?: string }) {
+}: React.PropsWithChildren<{ className?: string }>) {
+  const child = React.Children.only(children) as React.ReactElement;
+
   return (
     <Sparkles color="hsl(var(--christmas-gold))" density={1.5}>
-      <button
-        className={cn(
-          "relative transition-all duration-300",
-          "hover:scale-105 active:scale-95",
+      {React.cloneElement(child, {
+        className: cn(
+          'relative transition-all duration-300',
+          'hover:scale-105 active:scale-95',
+          child.props.className,
           className
-        )}
-        {...props}
-      >
-        {children}
-      </button>
+        ),
+        ...props,
+      })}
     </Sparkles>
-  )
+  );
 }
 
 // Hover effect wrapper
@@ -145,26 +141,21 @@ export function SparkleHover({
   children,
   className,
 }: {
-  children: React.ReactNode
-  className?: string
+  children: React.ReactNode;
+  className?: string;
 }) {
-  const [isHovered, setIsHovered] = useState(false)
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div
-      className={cn("relative inline-block", className)}
+      className={cn('relative inline-block', className)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {isHovered && (
-        <Sparkles
-          color="hsl(var(--christmas-gold))"
-          density={2}
-          minSize={8}
-          maxSize={15}
-        />
+        <Sparkles color="hsl(var(--christmas-gold))" density={2} minSize={8} maxSize={15} />
       )}
       {children}
     </div>
-  )
+  );
 }

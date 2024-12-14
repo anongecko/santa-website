@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import { Button } from "@/components/ui/button"
-import { SparkleButton } from "@/components/animations/Sparkles"
-import Link from "next/link"
-import { Bell, ArrowRight, Gift, MessageCircle, Mail } from "lucide-react"
-import { motion, useScroll, useTransform } from "framer-motion"
-import Image from 'next/image'
-import { cn } from "@/lib/utils"
+import { Button } from '@/components/ui/button';
+import { SparkleButton } from '@/components/animations/Sparkles';
+import Link from 'next/link';
+import { Bell, Gift, MessageCircle, Mail } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 function NaturalSnow() {
   return (
@@ -20,7 +20,7 @@ function NaturalSnow() {
             transform: translateY(100vh) translateX(20px);
           }
         }
-        
+
         .snowflake {
           position: absolute;
           width: var(--size);
@@ -33,37 +33,39 @@ function NaturalSnow() {
           will-change: transform;
         }
       `}</style>
-      
+
       {Array.from({ length: 150 }).map((_, i) => {
-        const size = Math.random() * 4 + 2
-        const blur = Math.random() * 1.5 + 0.5
-        const speed = `${Math.random() * 8 + 10}s`
-        const left = `${Math.random() * 100}%`
-        const opacity = Math.random() * 0.6 + 0.3
-        const delay = `-${Math.random() * 10}s`
-        
+        const size = Math.random() * 4 + 2;
+        const blur = Math.random() * 1.5 + 0.5;
+        const speed = `${Math.random() * 8 + 10}s`;
+        const left = `${Math.random() * 100}%`;
+        const opacity = Math.random() * 0.6 + 0.3;
+        const delay = `-${Math.random() * 10}s`;
+
         return (
           <div
             key={i}
             className="snowflake"
-            style={{
-              '--size': `${size}px`,
-              '--blur': `${blur}px`,
-              '--speed': speed,
-              '--opacity': opacity,
-              left,
-              animationDelay: delay,
-            } as React.CSSProperties}
+            style={
+              {
+                '--size': `${size}px`,
+                '--blur': `${blur}px`,
+                '--speed': speed,
+                '--opacity': opacity,
+                left,
+                animationDelay: delay,
+              } as React.CSSProperties
+            }
           />
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 function FestiveDecorations() {
-  const { scrollYProgress } = useScroll()
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
 
   return (
     <>
@@ -96,7 +98,7 @@ function FestiveDecorations() {
           transition={{
             duration: 4,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: 'easeInOut',
           }}
           className="w-full h-full bg-[url('/images/holly.svg')] bg-contain bg-no-repeat"
         />
@@ -109,8 +111,8 @@ function FestiveDecorations() {
           transition={{
             duration: 4,
             repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1
+            ease: 'easeInOut',
+            delay: 1,
           }}
           className="w-full h-full bg-[url('/images/holly.svg')] bg-contain bg-no-repeat scale-x-[-1]"
         />
@@ -139,37 +141,38 @@ function FestiveDecorations() {
         ))}
       </div>
     </>
-  )
+  );
 }
 
 const steps = [
   {
     icon: Mail,
-    title: "Register with Email",
+    title: 'Register with Email',
     description: "Securely connect your parent's email to start your magical journey",
   },
   {
     icon: MessageCircle,
-    title: "Chat with Santa",
-    description: "Share your Christmas wishes and stories directly with Santa Claus",
+    title: 'Chat with Santa',
+    description: 'Share your Christmas wishes and stories directly with Santa Claus',
   },
   {
     icon: Gift,
-    title: "Receive Your Gift List",
-    description: "Get a personalized wishlist sent straight to your parents",
+    title: 'Receive Your Gift List',
+    description: 'Get a personalized wishlist sent straight to your parents',
   },
-] as const
+] as const;
 
-const gradientButtonClasses = "bg-gradient-to-r from-[#3c8d0d] to-[#4bae11] hover:from-[#4bae11] hover:to-[#3c8d0d] text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+const gradientButtonClasses =
+  'bg-gradient-to-r from-[#3c8d0d] to-[#4bae11] hover:from-[#4bae11] hover:to-[#3c8d0d] text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95';
 
 export function Hero() {
   return (
     <section className="relative min-h-screen bg-gradient-to-b from-santa-red to-santa-red-dark overflow-hidden">
       <NaturalSnow />
       <FestiveDecorations />
-      
+
       <div className="container mx-auto flex flex-col items-center justify-center min-h-screen py-12 px-4">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-8 max-w-4xl relative z-10 mt-20"
@@ -178,7 +181,7 @@ export function Hero() {
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ type: "spring", bounce: 0.5 }}
+            transition={{ type: 'spring', bounce: 0.5 }}
             className="w-32 h-32 md:w-40 md:h-40 mx-auto relative"
           >
             <div className="absolute inset-0 bg-white/30 rounded-full blur-3xl" />
@@ -192,40 +195,40 @@ export function Hero() {
           </motion.div>
 
           {/* Title */}
-          <motion.h1 
+          <motion.h1
             className="text-5xl md:text-7xl lg:text-8xl font-bold text-white"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            Chat with{" "}
+            Chat with{' '}
             <motion.span
-              className="text-[#3c8d0d]"
+              className="text-[#49ab11]"
               animate={{
                 scale: [1, 1.1, 1],
               }}
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                ease: "easeInOut"
+                ease: 'easeInOut',
               }}
             >
-              Santa!
+              $SANTA!
             </motion.span>
           </motion.h1>
 
           {/* Description */}
-          <motion.p 
+          <motion.p
             className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            Experience the magic of a personal conversation with Santa Claus, powered by advanced AI technology! 🎄
+            The AI-powered Solana token that lets you experience the magic of talking to Santa! 🎄
           </motion.p>
 
           {/* CTA Buttons */}
-          <motion.div 
+          <motion.div
             className="flex flex-col sm:flex-row gap-4 justify-center pt-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -245,31 +248,24 @@ export function Hero() {
                 </span>
               </Button>
             </Link>
-            
+
             <SparkleButton>
-              <Link 
-                href="https://dexscreener.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
+              <Link href="https://dexscreener.com" target="_blank" rel="noopener noreferrer">
                 <Button
                   size="lg"
                   className={cn(
                     gradientButtonClasses,
-                    "text-lg px-8 py-6 rounded-full min-w-[200px]"
+                    'text-lg px-8 py-6 rounded-full min-w-[200px]'
                   )}
                 >
-                  <span className="flex items-center gap-2">
-                    View Chart
-                    <ArrowRight className="w-5 h-5" />
-                  </span>
+                  <span className="flex items-center gap-2">View Chart</span>
                 </Button>
               </Link>
             </SparkleButton>
           </motion.div>
 
           {/* Steps */}
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto pt-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -280,20 +276,22 @@ export function Hero() {
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + (i * 0.1) }}
+                transition={{ delay: 0.5 + i * 0.1 }}
                 className="relative"
               >
-                <div className="flex flex-col items-center gap-4 p-6 rounded-xl
+                <div
+                  className="flex flex-col items-center gap-4 p-6 rounded-xl
                             bg-white/10 backdrop-blur-sm border border-white/20
-                            hover:bg-white/20 transition-colors group">
+                            hover:bg-white/20 transition-colors group"
+                >
                   <motion.div
                     animate={{
-                      y: [0, -5, 0]
+                      y: [0, -5, 0],
                     }}
                     transition={{
                       duration: 2,
                       repeat: Infinity,
-                      delay: i * 0.2
+                      delay: i * 0.2,
                     }}
                     className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center"
                   >
@@ -301,12 +299,12 @@ export function Hero() {
                   </motion.div>
                   <h3 className="text-lg font-bold text-white">{step.title}</h3>
                   <p className="text-sm text-white/80">{step.description}</p>
-                  
+
                   {i < steps.length - 1 && (
-                    <div className="absolute -right-4 top-1/2 transform -translate-x-1/2 -translate-y-1/2
-                                  hidden md:block text-white/20">
-                      <ArrowRight className="w-5 h-5" />
-                    </div>
+                    <div
+                      className="absolute -right-4 top-1/2 transform -translate-x-1/2 -translate-y-1/2
+                                  hidden md:block text-white/20"
+                    ></div>
                   )}
                 </div>
               </motion.div>
@@ -315,5 +313,5 @@ export function Hero() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }

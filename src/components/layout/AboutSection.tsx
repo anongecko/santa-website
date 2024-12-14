@@ -1,54 +1,54 @@
-'use client'
+'use client';
 
-import { motion, useScroll, useTransform } from "framer-motion"
-import { useInView } from "react-intersection-observer"
-import { Star, ArrowRight } from "lucide-react"
-import { Player } from "@lottiefiles/react-lottie-player"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { SparkleButton } from "@/components/animations/Sparkles"
-import { cn } from "@/lib/utils"
-import { useRef } from "react"
-import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import { Star, ArrowRight } from 'lucide-react';
+import { Player } from '@lottiefiles/react-lottie-player';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { SparkleButton } from '@/components/animations/Sparkles';
+import { cn } from '@/lib/utils';
+import { useRef } from 'react';
+import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
 
 export function AboutSection() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const playerRef = useRef<Player>(null)
-  const { toast } = useToast()
-  
-  const [ref, inView] = useInView({ 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<Player>(null);
+  const { toast } = useToast();
+
+  const [ref, inView] = useInView({
     threshold: 0.2,
-    triggerOnce: true 
-  })
-  
+    triggerOnce: true,
+  });
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start end", "end start"]
-  })
-  
-  const y = useTransform(scrollYProgress, [0, 1], [20, -20])
+    offset: ['start end', 'end start'],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [20, -20]);
 
   const handleCopyAddress = async () => {
     try {
-      await navigator.clipboard.writeText("TBD")
+      await navigator.clipboard.writeText('TBD');
       toast({
-        title: "Contract Address Copied",
-        description: "The contract address has been copied to your clipboard.",
-        duration: 2000
-      })
+        title: 'Contract Address Copied',
+        description: 'The contract address has been copied to your clipboard.',
+        duration: 2000,
+      });
     } catch (err) {
       toast({
-        title: "Failed to copy",
-        description: "Please try copying the address manually.",
-        variant: "destructive",
-        duration: 2000
-      })
+        title: 'Failed to copy',
+        description: 'Please try copying the address manually.',
+        variant: 'destructive',
+        duration: 2000,
+      });
     }
-  }
-  
+  };
+
   return (
-    <section 
+    <section
       ref={containerRef}
       className="relative py-24 md:py-32 overflow-hidden"
       data-section="about"
@@ -62,10 +62,7 @@ export function AboutSection() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left Column - Content */}
-          <motion.div
-            ref={ref}
-            className="relative z-10"
-          >
+          <motion.div ref={ref} className="relative z-10">
             {/* Section Badge */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -73,7 +70,7 @@ export function AboutSection() {
               transition={{ duration: 0.5 }}
             >
               <Button
-                variant="secondary" 
+                variant="secondary"
                 onClick={handleCopyAddress}
                 className="mb-8 bg-santa-red/10 text-santa-red hover:bg-santa-red/20 border-none"
               >
@@ -90,11 +87,7 @@ export function AboutSection() {
               className="relative mb-6"
             >
               <h2 className="text-4xl md:text-5xl font-bold">
-                Where{" "}
-                <span className="text-santa-red">
-                  Christmas Magic
-                </span>
-                {" "}Meets AI
+                Where <span className="text-santa-red">Christmas Magic</span> Meets AI
               </h2>
             </motion.div>
 
@@ -106,14 +99,15 @@ export function AboutSection() {
               className="space-y-6 max-w-xl"
             >
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Experience personal conversations with Santa Claus powered by advanced AI. 
-                Our platform creates magical moments where children can share their wishes 
-                and experience the joy of Christmas in a whole new way.
+                $SANTA is an AI-backed Solana memecoin that lets you experience the magic of
+                Christmas by chatting with Santa! Tell Santa what you want for Christmas to
+                optionally receive a personalized, categorized wish list via email.
               </p>
-              
+
               <p className="text-lg text-muted-foreground leading-relaxed">
-                With real-time updates and comprehensive safety features, parents can stay 
-                involved while their children enjoy a secure and enchanting holiday experience.
+                The $SANTA release is a fair Raydium launch to provide ultimate profit potential to
+                all Christmas believers. Whether you're simply a memecoin connoisseur or an AI
+                enthusiast, being a part of the $SANTA community has plenty to offer.
               </p>
             </motion.div>
 
@@ -138,21 +132,17 @@ export function AboutSection() {
                   </span>
                 </Button>
               </Link>
-              
+
               <SparkleButton>
-                <Link 
-                  href="https://dexscreener.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                >
+                <Link href="https://dexscreener.com" target="_blank" rel="noopener noreferrer">
                   <Button
                     size="lg"
                     className={cn(
-                      "bg-gradient-to-r from-[#3c8d0d] to-[#4bae11]",
-                      "hover:from-[#4bae11] hover:to-[#3c8d0d]",
-                      "text-white shadow-lg hover:shadow-xl",
-                      "transition-all duration-300 hover:scale-105",
-                      "text-lg px-8 py-6 rounded-full min-w-[200px]"
+                      'bg-gradient-to-r from-[#3c8d0d] to-[#4bae11]',
+                      'hover:from-[#4bae11] hover:to-[#3c8d0d]',
+                      'text-white shadow-lg hover:shadow-xl',
+                      'transition-all duration-300 hover:scale-105',
+                      'text-lg px-8 py-6 rounded-full min-w-[200px]'
                     )}
                   >
                     <span className="flex items-center gap-2">
@@ -181,10 +171,10 @@ export function AboutSection() {
                 src="/animations/santa-chat-illustration.json"
                 className="w-full h-full"
                 onEvent={event => {
-                  if (event === 'load') playerRef.current?.play()
+                  if (event === 'load') playerRef.current?.play();
                 }}
               />
-              
+
               {/* Subtle Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-background/10 to-transparent" />
             </div>
@@ -205,5 +195,5 @@ export function AboutSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

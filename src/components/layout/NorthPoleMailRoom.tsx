@@ -1,81 +1,78 @@
-'use client'
+'use client';
 
-import { motion } from "framer-motion"
-import { useInView } from "react-intersection-observer"
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 import {
-  Gift, Mail, Star, Tag, Link as LinkIcon, 
-  DollarSign, Heart, ShoppingBag, Presentation
-} from "lucide-react"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { cn } from "@/lib/utils"
-import { Snow } from "@/components/animations/Snow"
+  Gift,
+  Mail,
+  Star,
+  Tag,
+  Link as LinkIcon,
+  DollarSign,
+  Heart,
+  ShoppingBag,
+  Presentation,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { Snow } from '@/components/animations/Snow';
 
 // Create a simple SectionTitle component since it's not available from shared
 function SectionTitle({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <h2 className={cn(
-      "text-3xl md:text-4xl lg:text-5xl font-bold mb-4",
-      className
-    )}>
-      {children}
-    </h2>
-  )
+    <h2 className={cn('text-3xl md:text-4xl lg:text-5xl font-bold mb-4', className)}>{children}</h2>
+  );
 }
 
 const sampleWishlist = {
-  childName: "Emily",
-  dateCreated: "December 11, 2024",
+  childName: 'Emily',
+  dateCreated: 'December 11, 2024',
   conversationHighlights: [
-    "Loves art and creativity",
-    "Interested in space and science",
-    "Enjoys reading adventure books"
+    'Loves art and creativity',
+    'Interested in space and science',
+    'Enjoys reading adventure books',
   ],
   gifts: [
     {
-      name: "Art Supply Set",
-      priority: "high",
-      details: "Mentioned multiple times, very excited about painting",
-      suggestedLinks: ["ArtStore/KidsSet", "CreativeCorner/Supplies"],
-      priceRange: "$25-40"
+      name: 'Art Supply Set',
+      priority: 'high',
+      details: 'Mentioned multiple times, very excited about painting',
+      suggestedLinks: ['ArtStore/KidsSet', 'CreativeCorner/Supplies'],
+      priceRange: '$25-40',
     },
     {
-      name: "Telescope for Kids",
-      priority: "medium",
-      details: "Would like to look at stars, educational interest",
-      suggestedLinks: ["ScienceKits/Telescopes", "KidsScience/Space"],
-      priceRange: "$50-80"
+      name: 'Telescope for Kids',
+      priority: 'medium',
+      details: 'Would like to look at stars, educational interest',
+      suggestedLinks: ['ScienceKits/Telescopes', 'KidsScience/Space'],
+      priceRange: '$50-80',
     },
     {
-      name: "Adventure Book Series",
-      priority: "medium",
+      name: 'Adventure Book Series',
+      priority: 'medium',
       details: "Specifically mentioned 'Magic Treehouse' series",
-      suggestedLinks: ["Books/Series", "ChildrenBooks/Adventure"],
-      priceRange: "$30-45"
-    }
-  ]
-}
+      suggestedLinks: ['Books/Series', 'ChildrenBooks/Adventure'],
+      priceRange: '$30-45',
+    },
+  ],
+};
 
 interface GiftCardProps {
-  gift: typeof sampleWishlist.gifts[0]
-  index: number
+  gift: (typeof sampleWishlist.gifts)[0];
+  index: number;
 }
 
 function GiftCard({ gift, index }: GiftCardProps) {
   const [ref, inView] = useInView({
     threshold: 0.2,
-    triggerOnce: true
-  })
+    triggerOnce: true,
+  });
 
   const priorityColors = {
-    high: "santa-red",
-    medium: "winter-blue",
-    low: "holly-green"
-  }
+    high: 'santa-red',
+    medium: 'winter-blue',
+    low: 'holly-green',
+  };
 
   return (
     <motion.div
@@ -87,11 +84,13 @@ function GiftCard({ gift, index }: GiftCardProps) {
       <Card className="group relative overflow-hidden hover:shadow-xl transition-all duration-300">
         <CardHeader className="relative">
           {/* Priority Tag */}
-          <div className={cn(
-            "absolute top-2 right-2 px-3 py-1 rounded-full text-xs",
-            `bg-${priorityColors[gift.priority as keyof typeof priorityColors]}/10`,
-            `text-${priorityColors[gift.priority as keyof typeof priorityColors]}`
-          )}>
+          <div
+            className={cn(
+              'absolute top-2 right-2 px-3 py-1 rounded-full text-xs',
+              `bg-${priorityColors[gift.priority as keyof typeof priorityColors]}/10`,
+              `text-${priorityColors[gift.priority as keyof typeof priorityColors]}`
+            )}
+          >
             {gift.priority.charAt(0).toUpperCase() + gift.priority.slice(1)} Priority
           </div>
 
@@ -136,22 +135,27 @@ function GiftCard({ gift, index }: GiftCardProps) {
         </CardContent>
 
         {/* Decorative Corner */}
-        <div className="absolute bottom-0 right-0 w-24 h-24 opacity-0 group-hover:opacity-10 
-                     transition-opacity duration-500 bg-gradient-to-tl from-christmas-gold to-transparent" />
+        <div
+          className="absolute bottom-0 right-0 w-24 h-24 opacity-0 group-hover:opacity-10 
+                     transition-opacity duration-500 bg-gradient-to-tl from-christmas-gold to-transparent"
+        />
       </Card>
     </motion.div>
-  )
+  );
 }
 
 // Only showing the changes needed - the interfaces and card components remain the same
 export function NorthPoleMailRoom() {
   const [ref, inView] = useInView({
     threshold: 0.1,
-    triggerOnce: true
-  })
+    triggerOnce: true,
+  });
 
   return (
-    <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-b from-background via-background/50 to-background">
+    <section
+      className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-b from-background via-background/50 to-background"
+      data-section="north-pole-mail"
+    >
       {/* Decorative Elements */}
       <Snow className="opacity-30" />
       <div className="absolute inset-0 bg-[url('/patterns/mail.svg')] opacity-5" />
@@ -164,15 +168,15 @@ export function NorthPoleMailRoom() {
           className="text-center space-y-3 mb-16"
         >
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-santa-red">
-            North Pole Mail Room{" "}
+            North Pole Mail Room{' '}
             <motion.span
               animate={{
-                rotate: [-10, 10, -10]
+                rotate: [-10, 10, -10],
               }}
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                ease: "easeInOut"
+                ease: 'easeInOut',
               }}
               className="inline-block"
             >
@@ -186,8 +190,8 @@ export function NorthPoleMailRoom() {
             transition={{ delay: 0.2 }}
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            Every chat with Santa creates a magical, organized wishlist delivered straight 
-            to parents' inboxes with helpful shopping insights.
+            Every chat with Santa creates a magical, organized wishlist delivered straight to
+            parents' inboxes with helpful shopping insights.
           </motion.p>
         </motion.div>
 
@@ -195,16 +199,18 @@ export function NorthPoleMailRoom() {
         <div className="max-w-4xl mx-auto mb-16">
           <Card className="relative overflow-visible bg-background shadow-xl pt-12 md:pt-14">
             {/* Mail Icon Container */}
-            <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-0
-                           bg-background rounded-full p-3 shadow-lg">
+            <div
+              className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-0
+                           bg-background rounded-full p-3 shadow-lg"
+            >
               <motion.div
                 animate={{
-                  y: [-2, 2, -2]
+                  y: [-2, 2, -2],
                 }}
                 transition={{
                   duration: 4,
                   repeat: Infinity,
-                  ease: "easeInOut"
+                  ease: 'easeInOut',
                 }}
               >
                 <Mail className="w-8 h-8 md:w-10 md:h-10 text-santa-red" />
@@ -263,37 +269,37 @@ export function NorthPoleMailRoom() {
           {[
             {
               icon: Presentation,
-              title: "Smart Organization",
-              description: "Gifts automatically categorized and prioritized"
+              title: 'Smart Organization',
+              description: 'Gifts automatically categorized and prioritized',
             },
             {
               icon: ShoppingBag,
-              title: "Shopping Helper",
-              description: "Curated shopping suggestions and price estimates"
+              title: 'Shopping Helper',
+              description: 'Curated shopping suggestions and price estimates',
             },
             {
               icon: Tag,
-              title: "Gift Insights",
-              description: "Detailed context from each conversation"
-            }
+              title: 'Gift Insights',
+              description: 'Detailed context from each conversation',
+            },
           ].map((feature, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ delay: 0.6 + (i * 0.2) }}
+              transition={{ delay: 0.6 + i * 0.2 }}
               className="text-center p-6 rounded-xl bg-background/50 backdrop-blur-sm
                        border border-border/50 hover:shadow-lg transition-all duration-300"
             >
               <motion.div
                 animate={{
-                  rotate: [-5, 5, -5]
+                  rotate: [-5, 5, -5],
                 }}
                 transition={{
                   duration: 4,
                   repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: i * 0.2
+                  ease: 'easeInOut',
+                  delay: i * 0.2,
                 }}
                 className="w-12 h-12 mx-auto mb-4 p-2 rounded-xl bg-santa-red/10"
               >
@@ -306,5 +312,5 @@ export function NorthPoleMailRoom() {
         </div>
       </div>
     </section>
-  )
+  );
 }

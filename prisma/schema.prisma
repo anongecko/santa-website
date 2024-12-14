@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ChatSession {
+  id            String         @id @default(cuid())
+  parentEmail   String
+  startTime     DateTime       @default(now())
+  endTime       DateTime?
+  status        String         @default("active")
+  conversations Conversation[]
+}
+
+model Conversation {
+  id        String      @id @default(cuid())
+  sessionId String
+  startTime DateTime    @default(now())
+  endTime   DateTime?
+  status    String      @default("active")
+  messages  Message[]
+  gifts     Gift[]
+  session   ChatSession @relation(fields: [sessionId], references: [id])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  content        String
+  role           String
+  timestamp      DateTime     @default(now())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+}
+
+model Gift {
+  id             String       @id @default(cuid())
+  name           String
+  priority       String       @default("medium")
+  mentionCount   Int          @default(1)
+  firstMentioned DateTime     @default(now())
+  confidence     Float        @default(0.5)
+  category       String?
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@unique([name, conversationId])
+}

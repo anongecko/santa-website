@@ -1,0 +1,294 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Santa Chat Testing Suite</title>
+    <style>
+      :root {
+        --santa-red: #d42220;
+        --holly-green: #0b5d1e;
+      }
+
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        margin: 0;
+        padding: 2rem;
+        background: #f8f9fa;
+        color: #1a1b1e;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .header h1 {
+        margin: 0;
+        color: var(--santa-red);
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .button {
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .button-primary {
+        background: var(--santa-red);
+        color: white;
+      }
+
+      .button-primary:hover {
+        background: #bf1d1b;
+      }
+
+      .button-secondary {
+        background: #e9ecef;
+        color: #1a1b1e;
+      }
+
+      .button-secondary:hover {
+        background: #dee2e6;
+      }
+
+      .button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .output {
+        border-radius: 8px;
+        background: white;
+        padding: 1rem;
+        border: 1px solid #e9ecef;
+        height: 600px;
+        overflow-y: auto;
+        font-family: monospace;
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+
+      .log-entry {
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-radius: 4px;
+      }
+
+      .log-START {
+        background: #e9ecef;
+      }
+      .log-SUCCESS {
+        background: #d1f5d3;
+        color: #0b5d1e;
+      }
+      .log-FAIL {
+        background: #ffe3e3;
+        color: #c92a2a;
+      }
+      .log-ERROR {
+        background: #fff0f6;
+        color: #c2255c;
+      }
+      .log-INFO {
+        background: #e7f5ff;
+        color: #1864ab;
+      }
+      .log-END {
+        background: #e9ecef;
+        font-weight: bold;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+      }
+
+      .summary-item {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 4px;
+        background: white;
+        border: 1px solid #e9ecef;
+      }
+
+      .summary-label {
+        font-size: 0.875rem;
+        color: #868e96;
+      }
+
+      .summary-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-top: 0.25rem;
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>🎅 Santa Chat Testing Suite</h1>
+      </header>
+
+      <div class="controls">
+        <button onclick="runTest('testEmailValidation')" class="button button-secondary">
+          Test Email Validation
+        </button>
+        <button onclick="runTest('testSessionCreation')" class="button button-secondary">
+          Test Session Creation
+        </button>
+        <button onclick="runTest('testMessageSending')" class="button button-secondary">
+          Test Message Sending
+        </button>
+        <button onclick="runTest('testRateLimiting')" class="button button-secondary">
+          Test Rate Limiting
+        </button>
+        <button onclick="runTest('cleanup')" class="button button-secondary">
+          Clean Up Sessions
+        </button>
+        <button onclick="runTest('runAllTests')" class="button button-primary">
+          Run All Tests
+        </button>
+        <button onclick="clearOutput()" class="button button-secondary">Clear Output</button>
+      </div>
+
+      <div id="output" class="output"></div>
+
+      <div id="summary" class="summary" style="display: none">
+        <div class="summary-item">
+          <div class="summary-label">Total Tests</div>
+          <div class="summary-value" id="total-tests">0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Success</div>
+          <div class="summary-value" id="success-tests">0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Failed</div>
+          <div class="summary-value" id="failed-tests">0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Errors</div>
+          <div class="summary-value" id="error-tests">0</div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/test.js"></script>
+    <script>
+      let isRunning = false;
+
+      function updateButtons(disabled) {
+        const buttons = document.querySelectorAll('.button');
+        buttons.forEach(button => (button.disabled = disabled));
+      }
+
+      async function runTest(testName) {
+        if (isRunning) return;
+        isRunning = true;
+        updateButtons(true);
+
+        const output = document.getElementById('output');
+        const startTime = Date.now();
+
+        // Override console.log to capture test output
+        const originalLog = console.log;
+        console.log = function () {
+          const args = Array.from(arguments);
+          const text = args
+            .map(arg => (typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg))
+            .join(' ');
+
+          const div = document.createElement('div');
+          div.className = 'log-entry';
+
+          // Extract log type from text
+          const typeMatch = text.match(/\[(.*?)\]/);
+          if (typeMatch) {
+            div.classList.add(`log-${typeMatch[1]}`);
+          }
+
+          div.textContent = `${text}`;
+          output.appendChild(div);
+          output.scrollTop = output.scrollHeight;
+          originalLog.apply(console, arguments);
+        };
+
+        try {
+          await SantaChatTest[testName]();
+          updateSummary();
+        } catch (error) {
+          console.log('[ERROR]', 'Test execution failed:', error);
+        } finally {
+          isRunning = false;
+          updateButtons(false);
+          console.log = originalLog;
+        }
+      }
+
+      function updateSummary() {
+        const summary = {
+          total: SantaChatTest.testResults.length,
+          success: SantaChatTest.testResults.filter(r => r.type === 'SUCCESS').length,
+          fail: SantaChatTest.testResults.filter(r => r.type === 'FAIL').length,
+          error: SantaChatTest.testResults.filter(r => r.type === 'ERROR').length,
+        };
+
+        document.getElementById('summary').style.display = 'grid';
+        document.getElementById('total-tests').textContent = summary.total;
+        document.getElementById('success-tests').textContent = summary.success;
+        document.getElementById('failed-tests').textContent = summary.fail;
+        document.getElementById('error-tests').textContent = summary.error;
+      }
+
+      function clearOutput() {
+        document.getElementById('output').innerHTML = '';
+        document.getElementById('summary').style.display = 'none';
+        SantaChatTest.testResults = [];
+      }
+    </script>
+  </body>
+</html>

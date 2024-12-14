@@ -1,0 +1,5 @@
+echo '{
+  "rules": {
+    "all": true
+  }
+}' > oxlint.json

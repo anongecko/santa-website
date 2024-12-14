@@ -1,53 +1,82 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Bell, Star, Gift, AlertTriangle } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { SparkleButton } from '@/components/animations/Sparkles'
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Bell, Star, Gift, AlertTriangle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SparkleButton } from '@/components/animations/Sparkles';
 
 interface EmailGateProps {
-  onSubmit: (email: string) => Promise<void>
-  isLoading?: boolean
-  onSkip?: () => void
+  onSubmit: (email: string) => Promise<void>;
+  isLoading?: boolean;
+  onSkip?: () => void;
 }
 
-export function EmailGate({ onSubmit, isLoading, onSkip }: EmailGateProps) {
-  const [email, setEmail] = useState('')
-  const [error, setError] = useState('')
-  const [showWarning, setShowWarning] = useState(false)
-  const [isClosing, setIsClosing] = useState(false)
+export function EmailGate({ onSubmit, onSkip }: EmailGateProps) {
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [showWarning, setShowWarning] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      setError('Please enter a valid email address')
-      return
-    }
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
     try {
-      await onSubmit(email)
+      if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        setError('Please enter a valid email address');
+        setIsLoading(false);
+        return;
+      }
+
+      await onSubmit(email);
+      setIsOpen(false);
     } catch (error) {
-      setError('Failed to start session. Please try again.')
+      console.error('Submission error:', error);
+      setError('Failed to start session. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
+
+  const handleSkip = async () => {
+    try {
+      setIsLoading(true);
+      setShowWarning(false);
+      if (onSkip) {
+        await onSkip();
+      }
+      setIsOpen(false);
+    } catch (error) {
+      console.error('Skip error:', error);
+      setError('Failed to start anonymous session');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
 
   return (
     <>
-      <Dialog open={!isClosing} onOpenChange={() => setShowWarning(true)}>
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm z-30" />
-        <DialogContent 
+      <Dialog open={true} onOpenChange={() => setShowWarning(true)}>
+        <DialogContent
           className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
                      w-[95vw] max-w-[425px] bg-white border-2 
                      shadow-2xl overflow-visible z-50"
-          style={{ margin: 0 }}
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -58,12 +87,12 @@ export function EmailGate({ onSubmit, isLoading, onSkip }: EmailGateProps) {
             <DialogHeader className="space-y-4">
               <motion.div
                 animate={{
-                  rotate: [0, -10, 10, 0]
+                  rotate: [0, -10, 10, 0],
                 }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
-                  ease: "easeInOut"
+                  ease: 'easeInOut',
                 }}
                 className="w-16 h-16 mx-auto rounded-full bg-santa-red/10 flex items-center justify-center"
               >
@@ -104,11 +133,12 @@ export function EmailGate({ onSubmit, isLoading, onSkip }: EmailGateProps) {
                   type="email"
                   placeholder="parent@email.com"
                   value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value)
-                    setError('')
+                  onChange={e => {
+                    setEmail(e.target.value);
+                    setError('');
                   }}
                   className="w-full border-santa-red/20 focus:border-santa-red bg-white"
+                  disabled={isLoading}
                 />
                 <AnimatePresence mode="wait">
                   {error && (
@@ -126,8 +156,8 @@ export function EmailGate({ onSubmit, isLoading, onSkip }: EmailGateProps) {
 
               <div className="flex justify-center pt-2">
                 <SparkleButton>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="bg-santa-red hover:bg-santa-red-dark text-lg px-8"
                     disabled={isLoading}
                   >
@@ -135,7 +165,7 @@ export function EmailGate({ onSubmit, isLoading, onSkip }: EmailGateProps) {
                     {isLoading && (
                       <motion.div
                         animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                         className="ml-2"
                       >
                         <Star className="w-4 h-4" />
@@ -159,40 +189,49 @@ export function EmailGate({ onSubmit, isLoading, onSkip }: EmailGateProps) {
       </Dialog>
 
       <AlertDialog open={showWarning} onOpenChange={setShowWarning}>
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm z-30" />
-        <AlertDialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                                     w-[95vw] max-w-[425px] bg-white border-2 shadow-2xl z-50">
+        <AlertDialogContent
+          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                                     w-[95vw] max-w-[425px] bg-white border-2 shadow-2xl z-50"
+        >
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-santa-red">
               <AlertTriangle className="w-5 h-5" />
               Important Notice
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-2">
-              <p>
-                Without providing an email address, we won't be able to send you your child's Christmas wishlist. This is a special part of the Santa Chat experience!
-              </p>
-              <p>
+              <span className="block">
+                Without providing an email address, we won't be able to send you your child's
+                Christmas wishlist. This is a special part of the Santa Chat experience!
+              </span>
+              <span className="block">
                 Are you sure you want to continue without email notifications?
-              </p>
+              </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex justify-end gap-2 mt-4">
-            <AlertDialogCancel className="border-santa-red/20 text-santa-red hover:bg-santa-red/10">
+            <AlertDialogCancel
+              className="border-santa-red/20 text-santa-red hover:bg-santa-red/10"
+              onClick={() => setShowWarning(false)}
+            >
               Go Back
             </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => {
-                setShowWarning(false)
-                setIsClosing(true)
-                setTimeout(() => onSkip?.(), 500)
-              }}
+            <AlertDialogAction
+              onClick={handleSkip}
               className="bg-santa-red hover:bg-santa-red-dark"
+              disabled={isLoading}
             >
-              Continue Without Email
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4 animate-spin" />
+                  Please wait...
+                </div>
+              ) : (
+                'Continue Without Email'
+              )}
             </AlertDialogAction>
           </div>
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }

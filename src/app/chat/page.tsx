@@ -1,19 +1,11 @@
-import dynamic from 'next/dynamic'
-import { Suspense } from 'react'
-import { Loading } from '@/components/loading'
+import { Metadata } from 'next'
+import ChatPage from '@/components/pages/ChatPage'
 
-const ChatPageComponent = dynamic(
-  () => import('@/components/pages/ChatPage'),
-  {
-    ssr: false,
-    loading: () => <Loading />
-  }
-)
+export const metadata: Metadata = {
+  title: 'Chat with Santa - AI Christmas Magic',
+  description: 'Have a magical chat with Santa Claus powered by AI. Share your Christmas wishes!'
+}
 
-export default function ChatPage() {
-  return (
-    <Suspense fallback={<Loading />}>
-      <ChatPageComponent />
-    </Suspense>
-  )
+export default function Page() {
+  return <ChatPage />
 }

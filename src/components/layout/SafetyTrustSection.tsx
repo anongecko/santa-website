@@ -1,112 +1,107 @@
-'use client'
+'use client';
 
-import { motion } from "framer-motion"
-import { useInView } from "react-intersection-observer"
-import {
-  Shield, Lock, Eye, Users, 
-  Filter, MessageSquare, Mail
-} from "lucide-react"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import { Shield, Lock, Eye, Users, Filter, MessageSquare, Mail } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
-import { cn } from "@/lib/utils"
+} from '@/components/ui/accordion';
+import { cn } from '@/lib/utils';
 
 const securityFeatures = [
   {
-    title: "Parent Controls",
-    description: "Complete oversight and control for parents",
+    title: 'Parent Controls',
+    description: 'Complete oversight and control for parents',
     icon: Users,
-    color: "santa-red",
+    color: 'santa-red',
     features: [
-      "Email notifications of chat activity",
-      "Session duration controls",
-      "Chat history access",
-      "Wishlist organization"
-    ]
+      'Email notifications of chat activity',
+      'Session duration controls',
+      'Chat history access',
+      'Wishlist organization',
+    ],
   },
   {
     title: "Santa's Safety",
-    description: "AI-powered content monitoring and filtering",
+    description: 'AI-powered content monitoring and filtering',
     icon: Filter,
-    color: "holly-green",
+    color: 'holly-green',
     features: [
-      "Child-friendly responses",
-      "Christmas-themed content",
-      "Positive interactions",
-      "Automated content filtering"
-    ]
+      'Child-friendly responses',
+      'Christmas-themed content',
+      'Positive interactions',
+      'Automated content filtering',
+    ],
   },
   {
-    title: "North Pole Privacy",
-    description: "Safe and secure chat experience",
+    title: 'North Pole Privacy',
+    description: 'Safe and secure chat experience',
     icon: Lock,
-    color: "winter-blue",
+    color: 'winter-blue',
     features: [
-      "Parent-authorized sessions",
-      "Secure communications",
-      "No data storage",
-      "24-hour chat cleanup"
-    ]
-  }
-]
+      'Parent-authorized sessions',
+      'Secure communications',
+      'No data storage',
+      '24-hour chat cleanup',
+    ],
+  },
+];
 
 const trustIndicators = [
   {
-    title: "Always Watching",
+    title: 'Always Watching',
     description: "Santa's helpers monitor chats 24/7",
-    icon: Eye
+    icon: Eye,
   },
   {
-    title: "Parent Updates",
-    description: "Instant wishlist delivery to parents",
-    icon: Mail
+    title: 'Parent Updates',
+    description: 'Instant wishlist delivery to parents',
+    icon: Mail,
   },
   {
-    title: "Santa Safe",
-    description: "Child-friendly Christmas magic",
-    icon: MessageSquare
-  }
-]
+    title: 'Santa Safe',
+    description: 'Child-friendly Christmas magic',
+    icon: MessageSquare,
+  },
+];
 
 const trustPolicies = [
   {
-    title: "Child Protection",
-    content: "We never store personal information about children. Chat sessions are temporary and automatically cleaned up after 24 hours. Parent emails are only used for delivering Christmas wishlists."
+    title: 'Child Protection',
+    content:
+      'We never store personal information about children. Chat sessions are temporary and automatically cleaned up after 24 hours. Parent emails are only used for delivering Christmas wishlists.',
   },
   {
-    title: "Christmas Spirit",
-    content: "Our AI Santa is trained to maintain magical, child-friendly conversations focused on Christmas wishes, holiday traditions, and spreading joy and positivity throughout the holiday season."
+    title: 'Christmas Spirit',
+    content:
+      'Our AI Santa is trained to maintain magical, child-friendly conversations focused on Christmas wishes, holiday traditions, and spreading joy and positivity throughout the holiday season.',
   },
   {
-    title: "Parent Magic",
-    content: "Parents receive instant notifications about their child's Christmas wishes and can review wishlists. The magic begins only after parent verification - just like sending a letter to Santa!"
+    title: 'Parent Magic',
+    content:
+      "Parents receive instant notifications about their child's Christmas wishes and can review wishlists. The magic begins only after parent verification - just like sending a letter to Santa!",
   },
   {
-    title: "North Pole Security",
-    content: "All chat sessions are monitored by Santa's helpers. We use advanced AI systems and follow strict guidelines to ensure every conversation stays magical, safe, and filled with Christmas spirit."
-  }
-]
+    title: 'North Pole Security',
+    content:
+      "All chat sessions are monitored by Santa's helpers. We use advanced AI systems and follow strict guidelines to ensure every conversation stays magical, safe, and filled with Christmas spirit.",
+  },
+];
 
 interface SecurityCardProps {
-  feature: typeof securityFeatures[0]
-  index: number
+  feature: (typeof securityFeatures)[0];
+  index: number;
 }
 
 function SecurityCard({ feature, index }: SecurityCardProps) {
   const [ref, inView] = useInView({
     threshold: 0.2,
-    triggerOnce: true
-  })
+    triggerOnce: true,
+  });
 
   return (
     <motion.div
@@ -116,10 +111,12 @@ function SecurityCard({ feature, index }: SecurityCardProps) {
       transition={{ duration: 0.5, delay: index * 0.2 }}
     >
       <Card className="relative overflow-hidden group hover:shadow-xl transition-all duration-300">
-        <div className={cn(
-          "absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500",
-          `bg-gradient-to-br from-${feature.color} to-transparent`
-        )} />
+        <div
+          className={cn(
+            'absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500',
+            `bg-gradient-to-br from-${feature.color} to-transparent`
+          )}
+        />
 
         <CardHeader>
           <div className="flex items-start gap-4">
@@ -131,15 +128,15 @@ function SecurityCard({ feature, index }: SecurityCardProps) {
               transition={{
                 duration: 4,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
               className={cn(
-                "p-3 rounded-xl",
+                'p-3 rounded-xl',
                 `bg-${feature.color}/10`,
-                "group-hover:scale-110 transition-transform duration-300"
+                'group-hover:scale-110 transition-transform duration-300'
               )}
             >
-              <feature.icon className={cn("w-6 h-6", `text-${feature.color}`)} />
+              <feature.icon className={cn('w-6 h-6', `text-${feature.color}`)} />
             </motion.div>
             <div>
               <CardTitle className="text-xl mb-2">{feature.title}</CardTitle>
@@ -157,10 +154,7 @@ function SecurityCard({ feature, index }: SecurityCardProps) {
                 transition={{ duration: 0.3, delay: index * 0.2 + i * 0.1 }}
                 className="flex items-center gap-3"
               >
-                <Shield className={cn(
-                  "w-5 h-5",
-                  `text-${feature.color}`
-                )} />
+                <Shield className={cn('w-5 h-5', `text-${feature.color}`)} />
                 <span className="text-sm text-muted-foreground">{item}</span>
               </motion.li>
             ))}
@@ -168,17 +162,17 @@ function SecurityCard({ feature, index }: SecurityCardProps) {
         </CardContent>
       </Card>
     </motion.div>
-  )
+  );
 }
 
 export function SafetyTrustSection() {
   const [ref, inView] = useInView({
     threshold: 0.1,
-    triggerOnce: true
-  })
+    triggerOnce: true,
+  });
 
   return (
-    <section className="relative py-20 md:py-32 overflow-hidden">
+    <section className="relative py-20 md:py-32 overflow-hidden" data-section="safety-trust">
       <div className="absolute inset-0 bg-[url('/patterns/shield.svg')] opacity-5" />
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background" />
 
@@ -190,16 +184,16 @@ export function SafetyTrustSection() {
           className="text-center space-y-3 mb-16"
         >
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-santa-red">
-            Safety & Trust{" "}
+            Safety & Trust{' '}
             <motion.span
               animate={{
                 scale: [1, 1.2, 1],
-                rotate: [0, 10, 0]
+                rotate: [0, 10, 0],
               }}
               transition={{
                 duration: 3,
                 repeat: Infinity,
-                ease: "easeInOut"
+                ease: 'easeInOut',
               }}
               className="inline-block"
             >
@@ -213,8 +207,8 @@ export function SafetyTrustSection() {
             transition={{ delay: 0.2 }}
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            Your child's safety is our top priority. Every feature is designed to keep
-            the Christmas magic safe and secure.
+            Your child's safety is our top priority. Every feature is designed to keep the Christmas
+            magic safe and secure.
           </motion.p>
         </motion.div>
 
@@ -231,12 +225,12 @@ export function SafetyTrustSection() {
             >
               <motion.div
                 animate={{
-                  scale: [1, 1.1, 1]
+                  scale: [1, 1.1, 1],
                 }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
-                  delay: i * 0.2
+                  delay: i * 0.2,
                 }}
                 className="p-2 rounded-lg bg-santa-red/10"
               >
@@ -244,9 +238,7 @@ export function SafetyTrustSection() {
               </motion.div>
               <div className="text-left">
                 <div className="font-semibold">{indicator.title}</div>
-                <div className="text-sm text-muted-foreground">
-                  {indicator.description}
-                </div>
+                <div className="text-sm text-muted-foreground">{indicator.description}</div>
               </div>
             </motion.div>
           ))}
@@ -267,12 +259,8 @@ export function SafetyTrustSection() {
           <Accordion type="single" collapsible className="w-full">
             {trustPolicies.map((policy, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left">
-                  {policy.title}
-                </AccordionTrigger>
-                <AccordionContent>
-                  {policy.content}
-                </AccordionContent>
+                <AccordionTrigger className="text-left">{policy.title}</AccordionTrigger>
+                <AccordionContent>{policy.content}</AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
@@ -284,15 +272,15 @@ export function SafetyTrustSection() {
           transition={{ delay: 0.8 }}
           className="mt-16 text-center"
         >
-          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full
-                        bg-background/50 backdrop-blur-sm border border-border/50">
+          <div
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full
+                        bg-background/50 backdrop-blur-sm border border-border/50"
+          >
             <Shield className="w-5 h-5 text-santa-red" />
-            <span className="text-sm">
-              Trusted by thousands of families worldwide
-            </span>
+            <span className="text-sm">Trusted by thousands of families worldwide</span>
           </div>
         </motion.div>
       </div>
     </section>
-  )
+  );
 }

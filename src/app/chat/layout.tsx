@@ -1,13 +1,10 @@
-// src/app/chat/layout.tsx
-import { ChatProvider } from '@/context/chat-context'
-import { TooltipProvider } from "@/components/ui/tooltip"
-import { Toaster } from '@/components/ui/toaster'
+'use client';
 
-export default function ChatLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+import { ChatProvider } from '@/context/chat-context';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster } from '@/components/ui/toaster';
+
+export default function ChatLayout({ children }: { children: React.ReactNode }) {
   return (
     <TooltipProvider>
       <ChatProvider>
@@ -15,5 +12,5 @@ export default function ChatLayout({
         <Toaster />
       </ChatProvider>
     </TooltipProvider>
-  )
+  );
 }

@@ -1,129 +1,103 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { EmailGate } from '@/components/chat/EmailGate'
-import { ChatInterface } from '@/components/chat/ChatInterface'
-import { Snow } from '@/components/animations/Snow'
-import { FloatingElements } from '@/components/animations/FloatingElements'
-import type { ChatSession } from '@/types/chat'
-import { cn } from '@/lib/utils'
-
-const mockPreviousSessions: Array<{id: string; date: Date; preview: string; gifts: number}> = [
-  {
-    id: 'session-1',
-    date: new Date(Date.now() - 86400000),
-    preview: "Ho ho ho! Thank you for sharing your Christmas wishes!",
-    gifts: 3
-  },
-  {
-    id: 'session-2',
-    date: new Date(Date.now() - 172800000),
-    preview: "It was wonderful hearing about your kind deeds!",
-    gifts: 2
-  }
-]
+import { useState } from 'react';
+import { EmailGate } from '@/components/chat/EmailGate';
+import { ChatInterface } from '@/components/chat/ChatInterface';
+import { EmailSessionManager } from '@/components/chat/EmailSessionManager';
+import { Snow } from '@/components/animations/Snow';
+import type { ChatSession } from '@/types/chat';
+import { cn } from '@/lib/utils';
 
 export function ChatPageContent() {
-  const [session, setSession] = useState<ChatSession | null>(null)
-  const [previousSessions] = useState(mockPreviousSessions)
+  const [session, setSession] = useState<ChatSession | null>(null);
+
+  const handleSkip = async () => {
+    try {
+      const response = await fetch('/api/session/new', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parentEmail: 'anonymous@example.com', // Use a default email for skipped sessions
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to create session');
+      const data = await response.json();
+
+      setSession({
+        id: data.sessionId,
+        parentEmail: 'anonymous@example.com',
+        status: 'active',
+        startTime: Date.now(),
+        lastActive: Date.now(),
+      });
+    } catch (error) {
+      console.error('Failed to start anonymous session:', error);
+    }
+  };
 
   const handleEmailSubmit = async (email: string) => {
-    const newSession: ChatSession = {
-      id: crypto.randomUUID(),
-      parentEmail: email,
-      status: 'active',
-      startTime: Date.now(),
-      lastActive: Date.now()
-    }
-    setSession(newSession)
-  }
+    try {
+      const response = await fetch('/api/session/new', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parentEmail: email }),
+      });
 
-  const handleSkip = () => {
-    const skipSession: ChatSession = {
-      id: crypto.randomUUID(),
-      parentEmail: 'skipped',
-      status: 'active',
-      startTime: Date.now(),
-      lastActive: Date.now()
-    }
-    setSession(skipSession)
-  }
+      if (!response.ok) throw new Error('Failed to create session');
+      const data = await response.json();
 
-  const handleSessionSelect = (sessionId: string) => {
-    const selectedSession = previousSessions.find(s => s.id === sessionId)
-    if (selectedSession) {
-      console.log('Loading previous session:', sessionId)
+      setSession({
+        id: data.sessionId,
+        parentEmail: email,
+        status: 'active',
+        startTime: Date.now(),
+        lastActive: Date.now(),
+      });
+    } catch (error) {
+      console.error('Failed to create session:', error);
     }
-  }
+  };
 
   return (
-    <div className="relative min-h-screen bg-[#1a1b1e]">
+    <div className="relative min-h-screen bg-[hsl(var(--cozy-cream))]">
       {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none opacity-30">
-        <Snow density={0.3} />
-        <FloatingElements 
-          count={4} 
-          enabledTypes={['star']}
-          className="opacity-10"
-        />
+      <div className="fixed inset-0 pointer-events-none -z-10">
+        <Snow density={0.1} minSpeed={1} maxSpeed={2} wind={0.1} color="255, 255, 255" />
       </div>
 
       {/* Main Layout */}
-      <div className={cn(
-        "relative z-10 h-screen max-w-[1920px] mx-auto",
-        "flex justify-center items-stretch",
-        "transition-opacity duration-500",
-        !session && "opacity-30"
-      )}>
-        {/* Chat Container */}
-        <div className="flex-1 flex h-full max-w-screen-2xl mx-auto">
-          {/* Main Chat Area */}
-          <div className="flex-1 h-full overflow-hidden px-4 py-8">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="h-full"
-            >
-              <ChatInterface 
-                sessionId={session?.id ?? 'preview'}
-                parentEmail={session?.parentEmail ?? 'preview@example.com'}
-                onSessionEnd={() => setSession(null)}
-                isPreview={!session}
-                availableSessions={[
-                  ...(session ? [{
-                    id: session.id,
-                    date: new Date(session.startTime),
-                    preview: "Current chat with Santa",
-                    gifts: 0
-                  }] : []),
-                  ...previousSessions
-                ]}
-                onSessionSelect={handleSessionSelect}
-              />
-            </motion.div>
-          </div>
+      <div className="h-screen overflow-hidden p-4">
+        <div
+          className={cn(
+            'h-full max-w-[1920px] mx-auto',
+            'transition-opacity duration-500',
+            !session && 'opacity-30'
+          )}
+        >
+          <ChatInterface
+            key={session?.id}
+            sessionId={session?.id ?? 'preview'}
+            parentEmail={session?.parentEmail ?? 'preview@example.com'}
+            onSessionEnd={() => setSession(null)}
+          />
         </div>
       </div>
 
       {/* Email Gate */}
       {!session && (
         <div className="fixed inset-0 z-20">
-          <EmailGate 
-            onSubmit={handleEmailSubmit} 
-            onSkip={handleSkip}
-          />
+          <EmailGate onSubmit={handleEmailSubmit} onSkip={handleSkip} />
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default function ChatPage() {
   return (
-    <div className="relative min-h-screen bg-[#1a1b1e] text-white">
-      <ChatPageContent />
+    <div className="chat-theme relative min-h-screen bg-[hsl(var(--cozy-cream))] text-gray-800">
+      <EmailSessionManager />
     </div>
-  )
+  );
 }

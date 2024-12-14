@@ -41,6 +41,18 @@
     --radius: 0.75rem;
   }
 
+  .chat-theme {
+  /* Chat-specific colors without affecting main page */
+  --chat-background: var(--cozy-cream);
+  --chat-sidebar-bg: var(--santa-red);
+  --chat-sidebar-bg-dark: var(--santa-red-dark);
+  --chat-panel-bg: var(--holly-green);
+  --chat-message-ai-bg: 0 0% 100%;
+  --chat-message-user-bg: var(--santa-red);
+  --chat-text-light: 0 0% 100%;
+  --chat-text-dark: 240 10% 3.9%;
+}
+
   .dark {
     --background: 20 14.3% 4.1%;
     --foreground: 0 0% 95%;

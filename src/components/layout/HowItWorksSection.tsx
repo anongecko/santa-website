@@ -1,97 +1,105 @@
-'use client'
+'use client';
 
-import { useInView } from "react-intersection-observer"
-import { 
-  Mail, MessageCircle, Gift, Star, 
-  ChevronRight, Bell, ArrowRight,
-  Shield, ExternalLink, Send,
-  Pause, Play
-} from "lucide-react"
-import { useState, useEffect } from "react"
-import { Player } from "@lottiefiles/react-lottie-player"
-import Link from "next/link"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { SparkleButton } from "@/components/animations/Sparkles"
-import { LucideIcon } from 'lucide-react'
-import { motion, AnimatePresence } from "framer-motion"
+import { useInView } from 'react-intersection-observer';
+import {
+  Mail,
+  MessageCircle,
+  Gift,
+  Star,
+  ChevronRight,
+  Bell,
+  ArrowRight,
+  Shield,
+  ExternalLink,
+  Pause,
+  Play,
+} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Player } from '@lottiefiles/react-lottie-player';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { SparkleButton } from '@/components/animations/Sparkles';
+import { LucideIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Step {
-  id: number
-  title: string
-  description: string
-  icon: LucideIcon
-  color: string
-  animation: string
-  details: string[]
-  preview: React.ReactNode
+  id: number;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  color: string;
+  animation: string;
+  details: string[];
+  preview: React.ReactNode;
 }
 
 const STEPS: Step[] = [
   {
     id: 1,
-    title: "Parent Setup",
-    description: "Quick and secure email registration",
+    title: 'Parent Setup',
+    description: 'Quick and secure email registration',
     icon: Mail,
-    color: "holly-green",
-    animation: "/animations/email-verification-lottie.json",
+    color: 'holly-green',
+    animation: '/animations/email-verification-lottie.json',
     details: [
       "Enter parent's email",
-      "Instant verification",
-      "Privacy protected",
-      "No account needed"
+      'Instant verification',
+      'Privacy protected',
+      'No account needed',
     ],
     preview: (
-    <div className="flex flex-col items-center justify-center gap-6 w-full max-w-md mx-auto">
-      <div className="w-full space-y-3">
-        <div className="text-sm text-muted-foreground mb-2">Parent's Email</div>
-        <Input 
-          type="email"
-          placeholder="parent@email.com"
-          defaultValue="northpole@santa.com"
-          className="bg-background text-foreground shadow-sm"
-          disabled
-        />
-      </div>
+      <div className="flex flex-col items-center justify-center gap-6 w-full max-w-md mx-auto">
+        <div className="w-full space-y-3">
+          <div className="text-sm text-muted-foreground mb-2">Parent's Email</div>
+          <Input
+            type="email"
+            placeholder="parent@email.com"
+            defaultValue="northpole@santa.com"
+            className="bg-background text-foreground shadow-sm"
+            disabled
+          />
+        </div>
 
-      <div className="w-full space-y-4">
-        <Button 
-          className="w-full bg-santa-red hover:bg-santa-red-dark text-white
+        <div className="w-full space-y-4">
+          <Button
+            className="w-full bg-santa-red hover:bg-santa-red-dark text-white
                    shadow-lg hover:shadow-xl transition-all duration-300
                    flex items-center justify-center gap-2 py-6"
+          >
+            <Mail className="w-5 h-5" />
+            <span className="text-base">Verify Email</span>
+          </Button>
+
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <Shield className="w-4 h-4" />
+            <span>Secure & Private</span>
+          </div>
+        </div>
+
+        <div
+          className="flex items-center gap-3 text-sm text-muted-foreground/80 
+                    bg-background/50 px-4 py-2 rounded-full border"
         >
-          <Mail className="w-5 h-5" />
-          <span className="text-base">Verify Email</span>
-        </Button>
-        
-        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Shield className="w-4 h-4" />
-          <span>Secure & Private</span>
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          Ready to spread Christmas magic
         </div>
       </div>
-
-      <div className="flex items-center gap-3 text-sm text-muted-foreground/80 
-                    bg-background/50 px-4 py-2 rounded-full border">
-        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-        Ready to spread Christmas magic
-      </div>
-    </div>
-  )
-  }
-,
+    ),
+  },
   {
     id: 2,
-    title: "Start Chatting",
-    description: "Magical conversation with Santa",
+    title: 'Start Chatting',
+    description: 'Magical conversation with Santa',
     icon: MessageCircle,
-    color: "santa-red",
-    animation: "/animations/santa-chat-lottie.json",
+    color: 'santa-red',
+    animation: '/animations/santa-chat-lottie.json',
     details: [
-      "Natural conversation",
-      "Share Christmas wishes",
-      "Tell Santa about yourself",
-      "Discuss gift ideas"
+      'Natural conversation',
+      'Share Christmas wishes',
+      'Tell Santa about yourself',
+      'Discuss gift ideas',
     ],
     preview: (
       <div className="space-y-4">
@@ -102,30 +110,31 @@ const STEPS: Step[] = [
           Hi Santa! I'm Emily! I've been helping mom and dad a lot!
         </div>
         <div className="bg-santa-red text-white p-3 rounded-xl max-w-[80%]">
-          That's wonderful to hear, Emily! Would you like to tell me what you'd love for Christmas? ✨
+          That's wonderful to hear, Emily! Would you like to tell me what you'd love for Christmas?
+          ✨
         </div>
       </div>
-    )
+    ),
   },
   {
     id: 3,
-    title: "Smart Wishlist",
-    description: "AI detects and organizes gifts",
+    title: 'Smart Wishlist',
+    description: 'AI detects and organizes gifts',
     icon: Gift,
-    color: "winter-blue",
-    animation: "/animations/wishlist-analysis-lottie.json",
+    color: 'winter-blue',
+    animation: '/animations/wishlist-analysis-lottie.json',
     details: [
-      "Automatic gift detection",
-      "Priority sorting",
-      "Shopping suggestions", 
-      "Price estimates"
+      'Automatic gift detection',
+      'Priority sorting',
+      'Sentiment analysis',
+      'Gift category tagging',
     ],
     preview: (
       <div className="space-y-3">
         {[
-          { name: "Art Supply Set", priority: "High", price: "$25-40" },
-          { name: "Beginner Telescope", priority: "Medium", price: "$50-80" },
-          { name: "Adventure Books", priority: "Medium", price: "$30-45" }
+          { name: 'Art Supply Set', priority: 'High', price: '$25-40' },
+          { name: 'Beginner Telescope', priority: 'Medium', price: '$50-80' },
+          { name: 'Adventure Books', priority: 'Medium', price: '$30-45' },
         ].map((gift, i) => (
           <div
             key={i}
@@ -138,29 +147,33 @@ const STEPS: Step[] = [
                 <div className="text-xs text-muted-foreground">{gift.price}</div>
               </div>
             </div>
-            <span className={cn(
-              "text-xs px-2 py-1 rounded-full",
-              gift.priority === "High" 
-                ? "bg-santa-red/10 text-santa-red"
-                : "bg-winter-blue/10 text-winter-blue"
-            )}>{gift.priority}</span>
+            <span
+              className={cn(
+                'text-xs px-2 py-1 rounded-full',
+                gift.priority === 'High'
+                  ? 'bg-santa-red/10 text-santa-red'
+                  : 'bg-winter-blue/10 text-winter-blue'
+              )}
+            >
+              {gift.priority}
+            </span>
           </div>
         ))}
       </div>
-    )
+    ),
   },
   {
     id: 4,
-    title: "Parent Delivery",
-    description: "Organized wishlist sent to parents",
+    title: 'Parent Delivery',
+    description: 'Organized wishlist sent to parents',
     icon: Bell,
-    color: "christmas-gold",
-    animation: "/animations/gift-delivery-lottie.json",
+    color: 'christmas-gold',
+    animation: '/animations/gift-delivery-lottie.json',
     details: [
-      "Instant email delivery",
-      "Organized gift list",
-      "Shopping links included",
-      "Safe & secure"
+      'Instant email delivery',
+      'Organized gift list',
+      'Interest insights included',
+      'Safe & secure',
     ],
     preview: (
       <div className="relative rounded-xl border p-6 space-y-4 bg-background">
@@ -168,21 +181,19 @@ const STEPS: Step[] = [
           <Bell className="w-6 h-6 text-christmas-gold" />
           <div>
             <div className="font-medium">Wishlist Ready!</div>
-            <div className="text-sm text-muted-foreground">
-              Sent to: northpole@santa.com
-            </div>
+            <div className="text-sm text-muted-foreground">Sent to: northpole@santa.com</div>
           </div>
         </div>
-        
+
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm">
             <Shield className="w-4 h-4 text-holly-green" />
             <span>Encrypted & Secure Delivery</span>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            {[1, 2].map((i) => (
-              <div 
-                key={i} 
+            {[1, 2].map(i => (
+              <div
+                key={i}
                 className="h-20 border-2 border-dashed border-christmas-gold/20 
                          rounded-lg flex items-center justify-center bg-background"
               >
@@ -192,13 +203,13 @@ const STEPS: Step[] = [
           </div>
         </div>
       </div>
-    )
-  }
-]
+    ),
+  },
+];
 
 interface PreviewProps {
-  step: Step
-  isLeft: boolean
+  step: Step;
+  isLeft: boolean;
 }
 
 function Preview({ step, isLeft }: PreviewProps) {
@@ -207,94 +218,96 @@ function Preview({ step, isLeft }: PreviewProps) {
       {/* Content Preview */}
       <div
         className={cn(
-          "p-4 md:p-6 rounded-xl border bg-background/95 dark:bg-background/20",
-          "w-full h-full min-h-[200px]",
-          "flex items-center justify-center",
-          "order-2",
-          isLeft && "md:order-1"
+          'p-4 md:p-6 rounded-xl border bg-background/95 dark:bg-background/20',
+          'w-full h-full min-h-[200px]',
+          'flex items-center justify-center',
+          'order-2',
+          isLeft && 'md:order-1'
         )}
       >
-        <div className="w-full max-w-[90%]">
-          {step.preview}
-        </div>
+        <div className="w-full max-w-[90%]">{step.preview}</div>
       </div>
 
       {/* Animation Container */}
-      <div className={cn(
-        "w-full aspect-square md:aspect-auto",
-        "relative flex items-center justify-center",
-        "order-1 min-h-[200px] md:min-h-[300px]",
-        isLeft && "md:order-2"
-      )}>
+      <div
+        className={cn(
+          'w-full aspect-square md:aspect-auto',
+          'relative flex items-center justify-center',
+          'order-1 min-h-[200px] md:min-h-[300px]',
+          isLeft && 'md:order-2'
+        )}
+      >
         <Player
           src={step.animation}
           className="w-full h-full"
           loop={true}
           autoplay={true}
-          style={{ 
+          style={{
             position: 'absolute',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: '100%',
             height: '100%',
-            objectFit: 'contain'
+            objectFit: 'contain',
           }}
         />
       </div>
     </div>
-  )
+  );
 }
 
 interface StepColumnProps {
-  steps: Step[]
-  activeStep: number
-  setActiveStep: (step: number) => void
+  steps: Step[];
+  activeStep: number;
+  setActiveStep: (step: number) => void;
 }
 
 function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {steps.map((step) => (
+      {steps.map(step => (
         <div
           key={step.id}
           className={cn(
-            "relative p-4 rounded-xl transition-all duration-300",
-            "min-h-[160px] md:min-h-[220px]",
-            "hover:bg-background/50 dark:hover:bg-background/10",
-            "hover:shadow-md dark:hover:shadow-background/5",
-            "cursor-pointer overflow-hidden",
-            "border border-transparent",
-            "flex flex-col",
+            'relative p-4 rounded-xl transition-all duration-300',
+            'min-h-[160px] md:min-h-[220px]',
+            'hover:bg-background/50 dark:hover:bg-background/10',
+            'hover:shadow-md dark:hover:shadow-background/5',
+            'cursor-pointer overflow-hidden',
+            'border border-transparent',
+            'flex flex-col',
             activeStep === step.id && [
-              "bg-background dark:bg-background/20",
-              "border-border/50 dark:border-border/10",
-              "shadow-sm"
+              'bg-background dark:bg-background/20',
+              'border-border/50 dark:border-border/10',
+              'shadow-sm',
             ]
           )}
           onClick={() => setActiveStep(step.id)}
           role="button"
           tabIndex={0}
           aria-pressed={activeStep === step.id}
-          onKeyDown={(e) => {
+          onKeyDown={e => {
             if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              setActiveStep(step.id)
+              e.preventDefault();
+              setActiveStep(step.id);
             }
           }}
         >
           <div className="flex-1 space-y-3">
             <div className="flex items-start gap-3">
-              <div className={cn(
-                "w-10 h-10 rounded-xl shrink-0",
-                `bg-${step.color}/10 dark:bg-${step.color}/5`,
-                "flex items-center justify-center",
-                "transition-transform duration-300",
-                activeStep === step.id && "scale-110"
-              )}>
+              <div
+                className={cn(
+                  'w-10 h-10 rounded-xl shrink-0',
+                  `bg-${step.color}/10 dark:bg-${step.color}/5`,
+                  'flex items-center justify-center',
+                  'transition-transform duration-300',
+                  activeStep === step.id && 'scale-110'
+                )}
+              >
                 <motion.div
                   animate={
-                    activeStep === step.id 
+                    activeStep === step.id
                       ? {
                           scale: [1, 1.05, 1],
                           opacity: [1, 0.85, 1],
@@ -303,34 +316,38 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
                   }
                   transition={{
                     duration: 3,
-                    ease: "easeInOut",
+                    ease: 'easeInOut',
                     repeat: Infinity,
-                    repeatType: "mirror"
+                    repeatType: 'mirror',
                   }}
                 >
-                  <step.icon className={cn(
-                    "w-5 h-5",
-                    `text-${step.color}`,
-                    "transition-transform duration-300"
-                  )} />
+                  <step.icon
+                    className={cn(
+                      'w-5 h-5',
+                      `text-${step.color}`,
+                      'transition-transform duration-300'
+                    )}
+                  />
                 </motion.div>
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className={cn(
-                    "font-semibold truncate",
-                    "dark:text-white",
-                    activeStep === step.id && "text-santa-red dark:text-santa-red-light"
-                  )}>
+                  <h3
+                    className={cn(
+                      'font-semibold truncate',
+                      'dark:text-white',
+                      activeStep === step.id && 'text-santa-red dark:text-santa-red-light'
+                    )}
+                  >
                     {step.title}
                   </h3>
                   {activeStep === step.id && (
                     <motion.div
                       className={cn(
-                        "w-4 h-4 rounded-full shrink-0",
+                        'w-4 h-4 rounded-full shrink-0',
                         `bg-${step.color}/10 dark:bg-${step.color}/5`,
-                        "flex items-center justify-center"
+                        'flex items-center justify-center'
                       )}
                     >
                       <motion.div
@@ -340,67 +357,63 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
                         }}
                         transition={{
                           duration: 2,
-                          ease: "easeInOut",
+                          ease: 'easeInOut',
                           repeat: Infinity,
                         }}
                       >
-                        <Star className={cn(
-                          "w-2.5 h-2.5",
-                          `text-${step.color}`
-                        )} />
+                        <Star className={cn('w-2.5 h-2.5', `text-${step.color}`)} />
                       </motion.div>
                     </motion.div>
                   )}
                 </div>
-                <p className={cn(
-                  "text-sm text-muted-foreground dark:text-gray-400",
-                  "line-clamp-2",
-                  activeStep === step.id && "text-foreground dark:text-gray-300"
-                )}>
+                <p
+                  className={cn(
+                    'text-sm text-muted-foreground dark:text-gray-400',
+                    'line-clamp-2',
+                    activeStep === step.id && 'text-foreground dark:text-gray-300'
+                  )}
+                >
                   {step.description}
                 </p>
               </div>
             </div>
 
-            <div className={cn(
-              "transition-all duration-300 overflow-hidden",
-              activeStep === step.id 
-                ? "opacity-100 max-h-[200px]" 
-                : "opacity-0 max-h-0 md:max-h-[200px] md:opacity-40"
-            )}>
+            <div
+              className={cn(
+                'transition-all duration-300 overflow-hidden',
+                activeStep === step.id
+                  ? 'opacity-100 max-h-[200px]'
+                  : 'opacity-0 max-h-0 md:max-h-[200px] md:opacity-40'
+              )}
+            >
               <div className="space-y-2 pt-2">
                 {step.details.map((detail, i) => (
                   <div
                     key={i}
                     className={cn(
-                      "flex items-center gap-2 text-sm py-1",
-                      "transition-all duration-300",
-                      activeStep === step.id && "translate-x-1"
+                      'flex items-center gap-2 text-sm py-1',
+                      'transition-all duration-300',
+                      activeStep === step.id && 'translate-x-1'
                     )}
                   >
                     <motion.div
-                      animate={
-                        activeStep === step.id 
-                          ? { x: [0, 2, 0] }
-                          : { x: 0 }
-                      }
+                      animate={activeStep === step.id ? { x: [0, 2, 0] } : { x: 0 }}
                       transition={{
                         duration: 2,
-                        ease: "easeInOut",
+                        ease: 'easeInOut',
                         repeat: Infinity,
-                        delay: i * 0.2
+                        delay: i * 0.2,
                       }}
                     >
-                      <ChevronRight className={cn(
-                        "w-3 h-3",
-                        `text-${step.color}`
-                      )} />
+                      <ChevronRight className={cn('w-3 h-3', `text-${step.color}`)} />
                     </motion.div>
-                    <span className={cn(
-                      "line-clamp-2",
-                      "text-muted-foreground dark:text-gray-400",
-                      activeStep === step.id && "text-foreground dark:text-gray-300"
-                    )}>
+                    <span
+                      className={cn(
+                        'line-clamp-2',
+                        'text-muted-foreground dark:text-gray-400',
+                        activeStep === step.id && 'text-foreground dark:text-gray-300'
+                      )}
+                    >
                       {detail}
                     </span>
                   </div>
@@ -411,47 +424,47 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
         </div>
       ))}
     </div>
-  )
+  );
 }
 export function HowItWorksSection() {
-  const [activeStep, setActiveStep] = useState(1)
-  const [autoPlayEnabled, setAutoPlayEnabled] = useState(true)
-  const [ref, inView] = useInView({ 
-    threshold: 0.1, 
+  const [activeStep, setActiveStep] = useState(1);
+  const [autoPlayEnabled, setAutoPlayEnabled] = useState(true);
+  const [ref, inView] = useInView({
+    threshold: 0.1,
     triggerOnce: false,
-    rootMargin: '50px' 
-  })
+    rootMargin: '50px',
+  });
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (inView && autoPlayEnabled) {
       interval = setInterval(() => {
-        setActiveStep(current => current < STEPS.length ? current + 1 : 1)
-      }, 8000)
+        setActiveStep(current => (current < STEPS.length ? current + 1 : 1));
+      }, 8000);
     }
-    return () => clearInterval(interval)
-  }, [inView, autoPlayEnabled])
+    return () => clearInterval(interval);
+  }, [inView, autoPlayEnabled]);
 
-  const currentStep = STEPS.find(step => step.id === activeStep) || STEPS[0]
+  const currentStep = STEPS.find(step => step.id === activeStep) || STEPS[0];
 
   const handleStepChange = (stepId: number) => {
-    setAutoPlayEnabled(false)
-    setActiveStep(stepId)
-  }
+    setAutoPlayEnabled(false);
+    setActiveStep(stepId);
+  };
 
   const handleMouseLeave = () => {
-    setAutoPlayEnabled(true)
-  }
+    setAutoPlayEnabled(true);
+  };
 
   return (
-    <section 
+    <section
       ref={ref}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "relative py-12 md:py-20 lg:py-32 overflow-hidden",
-        "bg-background dark:bg-background/50",
-        "min-h-[calc(100vh-4rem)]",
-        "flex flex-col items-center justify-center"
+        'relative py-12 md:py-20 lg:py-32 overflow-hidden',
+        'bg-background dark:bg-background/50',
+        'min-h-[calc(100vh-4rem)]',
+        'flex flex-col items-center justify-center'
       )}
       data-section="how-it-works"
     >
@@ -468,13 +481,15 @@ export function HowItWorksSection() {
           transition={{ duration: 0.5 }}
           className="text-center space-y-4 mb-12 md:mb-20"
         >
-          <h2 className={cn(
-            "text-3xl md:text-4xl lg:text-5xl font-bold",
-            "bg-clip-text text-transparent",
-            "bg-gradient-to-r from-santa-red to-santa-red-light",
-            "dark:from-santa-red-light dark:to-santa-red",
-            "px-4 inline-block"
-          )}>
+          <h2
+            className={cn(
+              'text-3xl md:text-4xl lg:text-5xl font-bold',
+              'bg-clip-text text-transparent',
+              'bg-gradient-to-r from-santa-red to-santa-red-light',
+              'dark:from-santa-red-light dark:to-santa-red',
+              'px-4 inline-block'
+            )}
+          >
             How It Works
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
@@ -489,29 +504,25 @@ export function HowItWorksSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full"
           >
-            <StepColumn 
-              steps={STEPS}
-              activeStep={activeStep}
-              setActiveStep={handleStepChange}
-            />
+            <StepColumn steps={STEPS} activeStep={activeStep} setActiveStep={handleStepChange} />
           </motion.div>
 
           {/* Progress Indicators */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
             className="flex justify-center gap-3 pt-4"
           >
-            {STEPS.map((step) => (
+            {STEPS.map(step => (
               <motion.button
                 key={step.id}
                 onClick={() => handleStepChange(step.id)}
                 className={cn(
-                  "h-1.5 rounded-full transition-all duration-500",
-                  activeStep === step.id 
-                    ? "w-8 bg-santa-red" 
-                    : "w-4 bg-santa-red/20 hover:bg-santa-red/40"
+                  'h-1.5 rounded-full transition-all duration-500',
+                  activeStep === step.id
+                    ? 'w-8 bg-santa-red'
+                    : 'w-4 bg-santa-red/20 hover:bg-santa-red/40'
                 )}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
@@ -519,19 +530,15 @@ export function HowItWorksSection() {
             ))}
             <motion.button
               className={cn(
-                "ml-2 p-2 rounded-full",
-                "text-santa-red/60 hover:text-santa-red",
-                "transition-colors duration-200"
+                'ml-2 p-2 rounded-full',
+                'text-santa-red/60 hover:text-santa-red',
+                'transition-colors duration-200'
               )}
               onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
-              {autoPlayEnabled ? (
-                <Pause className="w-4 h-4" />
-              ) : (
-                <Play className="w-4 h-4" />
-              )}
+              {autoPlayEnabled ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
             </motion.button>
           </motion.div>
 
@@ -552,10 +559,7 @@ export function HowItWorksSection() {
                 exit={{ opacity: 0, x: -20 }}
                 className="relative z-10 flex items-center justify-center w-full max-w-5xl mx-auto"
               >
-                <Preview 
-                  step={currentStep}
-                  isLeft={activeStep % 2 === 0}
-                />
+                <Preview step={currentStep} isLeft={activeStep % 2 === 0} />
               </motion.div>
             </AnimatePresence>
           </motion.div>
@@ -569,18 +573,18 @@ export function HowItWorksSection() {
             <Link href="/chat" className="w-full sm:w-auto">
               <Button
                 className={cn(
-                  "w-full sm:w-auto",
-                  "bg-white dark:bg-white/90 border-2 border-white",
-                  "text-slate-900 dark:text-slate-800",
-                  "hover:bg-white/90 dark:hover:bg-white/80",
-                  "text-base md:text-lg px-6 md:px-8 py-4 md:py-6",
-                  "rounded-full shadow-lg",
-                  "transition-all duration-300",
-                  "hover:scale-105 hover:shadow-xl active:scale-95",
-                  "min-w-[180px] md:min-w-[200px]",
+                  'w-full sm:w-auto',
+                  'bg-white dark:bg-white/90 border-2 border-white',
+                  'text-slate-900 dark:text-slate-800',
+                  'hover:bg-white/90 dark:hover:bg-white/80',
+                  'text-base md:text-lg px-6 md:px-8 py-4 md:py-6',
+                  'rounded-full shadow-lg',
+                  'transition-all duration-300',
+                  'hover:scale-105 hover:shadow-xl active:scale-95',
+                  'min-w-[180px] md:min-w-[200px]'
                 )}
               >
-                <motion.span 
+                <motion.span
                   className="flex items-center gap-2 whitespace-nowrap"
                   whileHover={{ x: 5 }}
                   transition={{ duration: 0.2 }}
@@ -590,28 +594,28 @@ export function HowItWorksSection() {
                 </motion.span>
               </Button>
             </Link>
-            
+
             <SparkleButton className="w-full sm:w-auto">
-              <Link 
-                href="https://dexscreener.com" 
-                target="_blank" 
+              <Link
+                href="https://dexscreener.com"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto"
               >
                 <Button
                   className={cn(
-                    "w-full sm:w-auto",
-                    "bg-gradient-to-r from-[#3c8d0d] to-[#4bae11]",
-                    "hover:from-[#4bae11] hover:to-[#3c8d0d]",
-                    "text-white dark:text-white",
-                    "shadow-lg hover:shadow-xl",
-                    "transition-all duration-300",
-                    "hover:scale-105 active:scale-95",
-                    "text-base md:text-lg px-6 md:px-8 py-4 md:py-6",
-                    "rounded-full min-w-[180px] md:min-w-[200px]"
+                    'w-full sm:w-auto',
+                    'bg-gradient-to-r from-[#3c8d0d] to-[#4bae11]',
+                    'hover:from-[#4bae11] hover:to-[#3c8d0d]',
+                    'text-white dark:text-white',
+                    'shadow-lg hover:shadow-xl',
+                    'transition-all duration-300',
+                    'hover:scale-105 active:scale-95',
+                    'text-base md:text-lg px-6 md:px-8 py-4 md:py-6',
+                    'rounded-full min-w-[180px] md:min-w-[200px]'
                   )}
                 >
-                  <motion.span 
+                  <motion.span
                     className="flex items-center gap-2 whitespace-nowrap"
                     whileHover={{ x: 5 }}
                     transition={{ duration: 0.2 }}
@@ -626,5 +630,5 @@ export function HowItWorksSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
