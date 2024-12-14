@@ -144,16 +144,41 @@ export function ChatInterface({ sessionId, parentEmail, onSessionEnd }: ChatUIPr
 
   // Main component render
   return (
-    <div className="relative h-full flex">
-      {/* Left Panel - Chat History */}
-      <ChatHistoryPanel
-        isOpen={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-        sessions={[]} // TODO: Add actual sessions
-        currentSessionId={sessionId}
-        onSessionClick={() => {}} // TODO: Add session switching
-      />
-
+    <div className="relative h-full flex w-full max-w-[1800px] mx-auto">
+  {/* Left Panel - Chat History */}
+  <ChatHistoryPanel
+  isOpen={isHistoryOpen}
+  onClose={() => setIsHistoryOpen(false)}
+  sessions={[
+    {
+      id: sessionId,
+      date: new Date(),
+      preview: messages[messages.length - 1]?.content || "Start chatting with Santa!",
+      gifts: gifts.length
+    },
+    {
+      id: 'prev-1',
+      date: new Date(Date.now() - 86400000), // 1 day ago
+      preview: "Ho ho ho! Thank you for sharing your Christmas wishes!",
+      gifts: 3
+    },
+    {
+      id: 'prev-2',
+      date: new Date(Date.now() - 172800000), // 2 days ago
+      preview: "It was wonderful hearing about your kind deeds!",
+      gifts: 2
+    }
+  ]}
+  currentSessionId={sessionId}
+  onSessionClick={(id) => {
+    if (id === sessionId) {
+      setIsHistoryOpen(false)
+      return
+    }
+    // Handle switching to previous sessions
+    console.log('Loading previous session:', id)
+  }}
+/>
       {/* Main Chat Area */}
       <Card className={cn(
         "flex-1 flex flex-col bg-[#2d2e32] border-white/10 shadow-2xl",

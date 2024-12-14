@@ -62,6 +62,13 @@ export interface ChatUIProps {
   parentEmail: string
   onSessionEnd?: () => void
   isPreview?: boolean
+  availableSessions?: Array<{
+    id: string
+    date: Date
+    preview: string
+    gifts: number
+  }>
+  onSessionSelect?: (sessionId: string) => void
 }
 
 export interface ChatMessageProps {

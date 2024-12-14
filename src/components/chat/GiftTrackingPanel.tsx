@@ -27,6 +27,7 @@ interface GiftTrackingProps {
   onClose: () => void
   gifts: Gift[]
   onUpdateGift: (id: string, updates: Partial<Gift>) => void
+  className?: string  // Add this line to fix the TypeScript error
 }
 
 const GIFT_CATEGORIES = [
