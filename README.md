@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Santa Chat 🎅
 
-## Getting Started
+An interactive AI-powered Santa Claus chat experience built with Next.js and
+OpenAI, featuring a beautiful landing page and upcoming smart gift
+recommendation system.
 
-First, run the development server:
+## Features ✨
+
+### Current
+
+- Interactive chat with AI Santa
+- Responsive, animated landing page
+- Real-time snow animation effects
+- Mobile-friendly design
+- Dark/light theme support
+- Loading states and animations
+- SEO optimized
+- Prisma + Supabase database integration
+- Cloudflare CDN integration
+- Keyboard shortcuts and accessibility
+
+### Coming Soon
+
+- AI-powered gift wishlist email feature
+- Amazon product recommendations at different price points
+- Smart product analysis and price tracking
+- Sentiment analysis of product reviews
+- Quality indicators and price history
+- Automated email generation with gift suggestions
+
+## Tech Stack 🛠️
+
+- **Framework**: Next.js 14
+- **Styling**: Tailwind CSS
+- **Components**: shadcn/ui
+- **Animations**: Framer Motion
+- **Database**: PostgreSQL (Supabase)
+- **ORM**: Prisma
+- **AI**: OpenAI API
+- **CDN**: Cloudflare
+- **Icons**: Lucide
+- **Analytics**: To be added
+
+## Getting Started 🚀
+
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/yourusername/santa-chat.git
+cd santa-chat
+```
+
+2. **Install dependencies**
+
+```bash
+npm install
+```
+
+3. **Set up environment variables** Create a `.env` file:
+
+```env
+DATABASE_URL="your-supabase-url"
+OPENAI_API_KEY="your-openai-key"
+```
+
+4. **Run database migrations**
+
+```bash
+npx prisma db push
+```
+
+5. **Start development server**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+6. **Build for production**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure 📁
 
-## Learn More
+```
+├── prisma/            # Database schema and migrations
+├── public/            # Static assets
+├── src/
+│   ├── app/          # Next.js app directory
+│   ├── components/   # React components
+│   │   ├── animations/
+│   │   ├── layout/
+│   │   ├── pages/
+│   │   └── ui/
+│   ├── lib/          # Utility functions
+│   ├── hooks/        # Custom React hooks
+│   └── styles/       # Global styles
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Performance Optimization 🚄
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Image optimization with Next.js Image
+- Dynamic imports for heavy components
+- CSS/JS minification
+- CDN caching via Cloudflare
+- Brotli compression
+- HTTP/2 and HTTP/3 enabled
+- Optimized fonts and icons
+- Responsive loading strategies
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment 🌍
 
-## Deploy on Vercel
+The application is configured for deployment on a VPS with:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Nginx as reverse proxy
+- PM2 for process management
+- Cloudflare for CDN and SSL
+- Supabase for database hosting
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Credits 🙏
+
+- Icons from Lucide
+- UI components from shadcn/ui
+
+---
+
+Made with ❤️ and 🎄 magic
