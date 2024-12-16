@@ -3,11 +3,8 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(req: Request) {
   try {
-    const { parentEmail } = await req.json()
-
     const session = await prisma.chatSession.create({
       data: {
-        parentEmail,
         status: 'active',
         startTime: new Date()
       }

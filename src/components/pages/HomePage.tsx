@@ -1,20 +1,21 @@
-'use client'
+'use client';
 
-import { ClientLayout } from '@/components/layout/ClientLayout'
-import { Header } from '@/components/layout/Header'
-import { Footer } from '@/components/layout/Footer'
-import { Hero } from "@/components/layout/Hero"
-import { AboutSection } from "@/components/layout/AboutSection"
-import { FeaturesSection } from "@/components/layout/FeaturesSection"
-import { HowItWorksSection } from "@/components/layout/HowItWorksSection"
-import { SafetyTrustSection } from "@/components/layout/SafetyTrustSection"
-import { NorthPoleMailRoom } from "@/components/layout/NorthPoleMailRoom"
-import { MobileNav } from '@/components/layout/MobileNav'
-import dynamic from 'next/dynamic'
+import dynamic from 'next/dynamic';
+import { AboutSection } from '@/components/layout/AboutSection';
+import { ClientLayout } from '@/components/layout/ClientLayout';
+import { CountdownBanner } from '@/components/layout/CountdownBanner';
+import { FeaturesSection } from '@/components/layout/FeaturesSection';
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
+import { Hero } from '@/components/layout/Hero';
+import { HowItWorksSection } from '@/components/layout/HowItWorksSection';
+import { MobileNav } from '@/components/layout/MobileNav';
+import { NorthPoleMailRoom } from '@/components/layout/NorthPoleMailRoom';
+import { SafetyTrustSection } from '@/components/layout/SafetyTrustSection';
 
-const Snow = dynamic(() => import('@/components/animations/Snow').then(mod => mod.Snow), {
-  ssr: false
-})
+const Snow = dynamic(() => import('@/components/animations/Snow').then((mod) => mod.Snow), {
+  ssr: false,
+});
 
 export default function HomePage() {
   return (
@@ -36,5 +37,5 @@ export default function HomePage() {
         <MobileNav />
       </div>
     </ClientLayout>
-  )
+  );
 }

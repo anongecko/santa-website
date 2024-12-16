@@ -1,24 +1,37 @@
 import { OpenAI } from 'openai';
 import type { Message } from '@/types/chat';
-import { AIConfig, ModelConfig, defaultConfig } from './ai-config';
-import { GiftExtractor } from './gift-extractor';
-import { AIGiftDetector } from './ai-gift-detector';
+import { AIConfig, defaultConfig, ModelConfig } from './ai-config';
+
+interface ConversationMemory {
+  topics: string[];
+  childInterests: string[];
+  recentEmotions: string[];
+  lastInteraction: Date;
+  messageCount: number;
+}
 
 interface AIResponse {
   text: string;
-  gifts?: ReturnType<typeof GiftExtractor.extractGifts>;
-  usage:
-    | {
-        prompt_tokens: number;
-        completion_tokens: number;
-        total_tokens: number;
-      }
-    | undefined;
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
   metadata: {
     model: string;
     sessionId: string;
     timestamp: number;
+    personality?: {
+      tone: string;
+      emotionalState: string;
+    };
   };
+}
+
+type MessageRole = 'system' | 'user' | 'assistant';
+interface ChatMessage {
+  role: MessageRole;
+  content: string;
 }
 
 class AIError extends Error {
@@ -35,6 +48,7 @@ class AIError extends Error {
 export class AIService {
   private openai: OpenAI;
   private config: AIConfig;
+  private conversationMemories: Map<string, ConversationMemory> = new Map();
 
   constructor(config: Partial<AIConfig> = {}) {
     this.config = { ...defaultConfig, ...config };
@@ -48,7 +62,6 @@ export class AIService {
     options: {
       messages: Message[];
       sessionId: string;
-      childEmail: string;
       modelConfig?: Partial<ModelConfig>;
     }
   ): Promise<ReadableStream<Uint8Array> | AIResponse> {
@@ -57,21 +70,19 @@ export class AIService {
 
     try {
       const safeMessage = this.applySafetyFilters(message);
-
-      // Process gifts in the background without blocking
-      AIGiftDetector.processMessage(safeMessage, sessionId, messages, this.openai).catch(error =>
-        console.error('Background gift detection failed:', error)
-      );
+      const memory = this.getOrCreateMemory(sessionId);
+      const enhancedPrompt = this.enhancePromptWithContext(safeMessage, memory);
 
       const completion = await this.openai.chat.completions.create({
         model: modelConfig.name,
         messages: [
           { role: 'system', content: this.config.prompts.system },
-          ...messages.map(msg => ({
+          ...this.generateContextMessages(memory),
+          ...messages.map((msg) => ({
             role: msg.role as 'user' | 'assistant',
             content: msg.content,
           })),
-          { role: 'user', content: safeMessage },
+          { role: 'user', content: enhancedPrompt },
         ],
         temperature: modelConfig.temperature,
         max_tokens: modelConfig.maxTokens,
@@ -84,40 +95,25 @@ export class AIService {
       });
 
       if (modelConfig.stream) {
-        return new ReadableStream({
-          async start(controller) {
-            try {
-              const stream = completion as AsyncIterable<OpenAI.Chat.ChatCompletionChunk>;
-              for await (const chunk of stream) {
-                const content = chunk.choices[0]?.delta?.content || '';
-                if (content) {
-                  controller.enqueue(new TextEncoder().encode(content));
-                }
-              }
-              controller.close();
-            } catch (error) {
-              controller.error(error);
-            }
-          },
-        });
+        return this.handleStreamResponse(
+          completion as AsyncIterable<OpenAI.Chat.ChatCompletionChunk>,
+          memory
+        );
       }
 
       const response = completion as OpenAI.Chat.ChatCompletion;
-      const content = response.choices[0]?.message?.content || '';
-      const extractedGifts = GiftExtractor.extractGifts(content);
+      const content = this.formatResponse(response.choices[0]?.message?.content || '');
+
+      this.updateMemory(memory, message, content);
 
       return {
         text: content,
-        gifts: extractedGifts.length ? extractedGifts : undefined,
-        usage: response.usage ?? {
-          prompt_tokens: 0,
-          completion_tokens: 0,
-          total_tokens: 0,
-        },
+        usage: response.usage,
         metadata: {
           model: modelConfig.name,
           sessionId,
           timestamp: Date.now(),
+          personality: this.determinePersonality(memory),
         },
       };
     } catch (error) {
@@ -126,20 +122,245 @@ export class AIService {
     }
   }
 
-  private applySafetyFilters(text: string): string {
-    let filteredText = text;
-
-    if (this.config.safety.contentFiltering.enabled) {
-      Object.entries(this.config.safety.contentFiltering.replacements).forEach(
-        ([find, replace]) => {
-          filteredText = filteredText.replace(new RegExp(find, 'gi'), replace);
-        }
-      );
-
-      this.config.safety.blockListPatterns.forEach(pattern => {
-        filteredText = filteredText.replace(pattern, '[removed]');
+  private getOrCreateMemory(sessionId: string): ConversationMemory {
+    if (!this.conversationMemories.has(sessionId)) {
+      this.conversationMemories.set(sessionId, {
+        topics: [],
+        childInterests: [],
+        recentEmotions: [],
+        lastInteraction: new Date(),
+        messageCount: 0,
       });
     }
+    return this.conversationMemories.get(sessionId)!;
+  }
+
+  private generateContextMessages(memory: ConversationMemory): ChatMessage[] {
+    const contextMessages: ChatMessage[] = [];
+
+    if (memory.messageCount === 0) {
+      const greeting = this.selectGreeting('newChat');
+      contextMessages.push({ role: 'system', content: `Start with: ${greeting}` });
+    } else if (this.isLongPause(memory.lastInteraction)) {
+      const reengagement = this.selectGreeting('longPause');
+      contextMessages.push({ role: 'system', content: `Start with: ${reengagement}` });
+    }
+
+    if (memory.childInterests.length > 0) {
+      contextMessages.push({
+        role: 'system',
+        content: `Child has shown interest in: ${Array.from(new Set(memory.childInterests)).join(', ')}`,
+      });
+    }
+
+    return contextMessages;
+  }
+
+  private selectGreeting(type: 'newChat' | 'reengagement' | 'longPause'): string {
+    const greetings = this.config.prompts.situational[type];
+    return greetings[Math.floor(Math.random() * greetings.length)];
+  }
+
+  private isLongPause(lastInteraction: Date): boolean {
+    return Date.now() - lastInteraction.getTime() > 5 * 60 * 1000; // 5 minutes
+  }
+
+  private formatResponse(content: string): string {
+    const shouldAddMagic = Math.random() < 0.2;
+    if (shouldAddMagic) {
+      const effect = this.getRandomEffect();
+      content = `${effect} ${content}`;
+    }
+
+    if (!this.hasEmoji(content)) {
+      content += ' ' + this.getRandomEmoji();
+    }
+
+    return content;
+  }
+
+  private getRandomEffect(): string {
+    const effects = [
+      ...this.config.prompts.emotional.delight,
+      ...this.config.prompts.emotional.excitement,
+      ...this.config.prompts.emotional.warmth,
+    ];
+    return effects[Math.floor(Math.random() * effects.length)];
+  }
+
+  private getRandomEmoji(): string {
+    const emojis = ['🎅', '🎄', '✨', '⭐', '❄️', '🎁', '🦌', '🔔'];
+    return emojis[Math.floor(Math.random() * emojis.length)];
+  }
+
+  private hasEmoji(text: string): boolean {
+    const emojiRegex = /[\u{1F300}-\u{1F9FF}]/gu; // Add 'u' flag for unicode
+    return emojiRegex.test(text);
+  }
+
+  private determinePersonality(memory: ConversationMemory): {
+    tone: string;
+    emotionalState: string;
+  } {
+    const messageCount = memory.messageCount;
+    const recentEmotions = memory.recentEmotions;
+
+    let tone = 'jolly';
+    if (messageCount > 5 && memory.childInterests.length > 0) {
+      tone = 'wise';
+    } else if (recentEmotions.includes('excitement')) {
+      tone = 'playful';
+    }
+
+    return {
+      tone,
+      emotionalState: recentEmotions[recentEmotions.length - 1] || 'cheerful',
+    };
+  }
+
+  private async handleStreamResponse(
+    stream: AsyncIterable<OpenAI.Chat.ChatCompletionChunk>,
+    memory: ConversationMemory
+  ): Promise<ReadableStream<Uint8Array>> {
+    return new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        let accumulatedContent = '';
+
+        try {
+          for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content || '';
+            accumulatedContent += content;
+            controller.enqueue(encoder.encode(content));
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
+    });
+  }
+
+  private enhancePromptWithContext(message: string, memory: ConversationMemory): string {
+    const personality = this.determinePersonality(memory);
+    const traits =
+      this.config.prompts.personality[
+        personality.tone as keyof typeof this.config.prompts.personality
+      ];
+
+    let enhancedMessage = message;
+
+    // Apply personality traits to the prompt
+    if (traits) {
+      if ('phrases' in traits) {
+        // Add a wise phrase occasionally
+        if (Math.random() < 0.3) {
+          const phrase = traits.phrases[Math.floor(Math.random() * traits.phrases.length)];
+          enhancedMessage = `${phrase} ${enhancedMessage}`;
+        }
+      } else if ('sounds' in traits) {
+        // Add playful sounds occasionally
+        if (Math.random() < 0.2) {
+          const sound = traits.sounds[Math.floor(Math.random() * traits.sounds.length)];
+          enhancedMessage = `${sound} ${enhancedMessage}`;
+        }
+      }
+    }
+
+    // Add context about child's interests
+    if (memory.childInterests.length > 0) {
+      enhancedMessage += `\n\nContext: Child has mentioned interest in ${Array.from(new Set(memory.childInterests)).join(', ')}.`;
+    }
+
+    return enhancedMessage;
+  }
+
+  private updateMemory(memory: ConversationMemory, userMessage: string, aiResponse: string) {
+    memory.messageCount++;
+    memory.lastInteraction = new Date();
+
+    // Extract potential interests from user message
+    const interests = this.extractInterests(userMessage);
+    memory.childInterests = Array.from(new Set([...memory.childInterests, ...interests])).slice(-5);
+
+    // Update topics
+    const newTopics = this.extractTopics(userMessage);
+    memory.topics = Array.from(new Set([...memory.topics, ...newTopics])).slice(-5);
+
+    // Detect emotion
+    const emotion = this.detectEmotion(userMessage);
+    if (emotion) {
+      memory.recentEmotions.push(emotion);
+      memory.recentEmotions = memory.recentEmotions.slice(-3);
+    }
+
+    // Analyze AI response for context continuation
+    this.analyzeResponse(memory, aiResponse);
+  }
+
+  private analyzeResponse(memory: ConversationMemory, aiResponse: string) {
+    // Check if response references previous topics
+    memory.topics.forEach((topic) => {
+      if (aiResponse.toLowerCase().includes(topic.toLowerCase())) {
+        // Move referenced topic to end of list to keep it recent
+        memory.topics = [...memory.topics.filter((t) => t !== topic), topic];
+      }
+    });
+  }
+
+  private extractInterests(message: string): string[] {
+    // Simple interest extraction - could be enhanced with NLP
+    const interests: string[] = [];
+    if (message.toLowerCase().includes('like') || message.toLowerCase().includes('love')) {
+      const words = message.split(' ');
+      const index = words.findIndex(
+        (w) => w.toLowerCase() === 'like' || w.toLowerCase() === 'love'
+      );
+      if (index !== -1 && words[index + 1]) {
+        interests.push(words.slice(index + 1, index + 3).join(' '));
+      }
+    }
+    return interests;
+  }
+
+  private extractTopics(message: string): string[] {
+    // Simple topic extraction - could be enhanced with NLP
+    const christmasKeywords = ['present', 'gift', 'tree', 'snow', 'reindeer', 'elf', 'cookie'];
+    return christmasKeywords.filter((keyword) =>
+      message.toLowerCase().includes(keyword.toLowerCase())
+    );
+  }
+
+  private detectEmotion(message: string): string | null {
+    const emotionKeywords = {
+      excitement: ['excited', 'happy', 'yay', 'wow'],
+      curiosity: ['wonder', 'curious', 'what if', 'how do'],
+      joy: ['love', 'amazing', 'wonderful', 'great'],
+    };
+
+    for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
+      if (keywords.some((keyword) => message.toLowerCase().includes(keyword))) {
+        return emotion;
+      }
+    }
+
+    return null;
+  }
+
+  private applySafetyFilters(text: string): string {
+    if (!this.config.safety.contentFiltering.enabled) return text;
+
+    let filteredText = text;
+
+    // Apply word replacements
+    Object.entries(this.config.safety.contentFiltering.replacements).forEach(([find, replace]) => {
+      filteredText = filteredText.replace(new RegExp(find, 'gi'), replace);
+    });
+
+    // Apply blocklist patterns
+    this.config.safety.blockListPatterns.forEach((pattern) => {
+      filteredText = filteredText.replace(pattern, '[removed]');
+    });
 
     return filteredText;
   }
@@ -149,29 +370,33 @@ export class AIService {
 
     const err = error as any;
     const statusCode = err.response?.status || 500;
-    let code = 'UNKNOWN_ERROR';
-    let message = 'An unexpected error occurred. Please try again.';
-
-    switch (statusCode) {
-      case 429:
-        code = 'RATE_LIMIT_EXCEEDED';
-        message = 'Rate limit exceeded. Please try again in a moment.';
-        break;
-      case 400:
-        code = 'INVALID_REQUEST';
-        message = 'Invalid request. Please check your input.';
-        break;
-      case 401:
-        code = 'AUTHENTICATION_ERROR';
-        message = 'Authentication error. Please check your API key.';
-        break;
-      case 403:
-        code = 'PERMISSION_DENIED';
-        message = 'Permission denied. Please check your API key permissions.';
-        break;
-    }
+    const code = this.getErrorCode(statusCode);
+    const message = this.getErrorMessage(code);
 
     return new AIError(message, code, statusCode);
+  }
+
+  private getErrorCode(statusCode: number): string {
+    const errorCodes: Record<number, string> = {
+      429: 'RATE_LIMIT_EXCEEDED',
+      400: 'INVALID_REQUEST',
+      401: 'AUTHENTICATION_ERROR',
+      403: 'PERMISSION_DENIED',
+      500: 'SERVER_ERROR',
+    };
+    return errorCodes[statusCode] || 'UNKNOWN_ERROR';
+  }
+
+  private getErrorMessage(code: string): string {
+    const messages: Record<string, string> = {
+      RATE_LIMIT_EXCEEDED: this.config.prompts.errorResponse,
+      INVALID_REQUEST: 'Ho ho ho! Something went wrong with the Christmas magic!',
+      AUTHENTICATION_ERROR: 'The North Pole workshop needs a special key!',
+      PERMISSION_DENIED: 'Oh dear! The elves need to check something first!',
+      SERVER_ERROR: 'The workshop is having a small hiccup!',
+      UNKNOWN_ERROR: 'The North Pole magic is being a bit tricky!',
+    };
+    return messages[code] || this.config.prompts.errorResponse;
   }
 
   updateConfig(newConfig: Partial<AIConfig>) {

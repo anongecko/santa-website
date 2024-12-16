@@ -1,20 +1,25 @@
 'use client';
 
 import { createContext, useContext, useReducer, useCallback } from 'react';
-import type { ChatState, ChatAction, ChatContextType, Gift } from '@/types/chat';
+import type { ChatState, ChatAction, ChatContextType } from '@/types/chat';
 
 const initialState: ChatState = {
   status: 'initializing',
   messages: [],
-  gifts: [],
   isTyping: false,
 };
 
 const santaGreetings = [
-  'Ho ho ho! Welcome to the North Pole! 🎅',
-  "Ho ho ho! I'm so happy you're here! What's your name? 🎄",
-  "Ho ho ho! Merry Christmas! I've been waiting to chat with you! 🎅",
-  'Ho ho ho! Welcome to my workshop! Have you been good this year? 🎄',
+  "Ho ho ho! Welcome to my magical workshop at the North Pole! I'm so delighted you're here! ✨",
+  "Ho ho ho! What a wonderful surprise to see you! The elves just told me you were coming! 🎄",
+  "Ho ho ho! Merry Christmas, my dear friend! I've taken a break from checking my list to chat with you! 🎅",
+  "Ho ho ho! Welcome! I was just having cookies with Mrs. Claus when I heard you wanted to talk! 🍪",
+  "Ho ho ho! The reindeer told me someone special wanted to chat - they were right! ⭐",
+  "Ho ho ho! I've been hoping you'd visit! Rudolph's nose lit up when he saw you coming! 🦌",
+  "Ho ho ho! The North Pole is extra magical today now that you're here! Let's share some Christmas joy! 🎄",
+  "Ho ho ho! What perfect timing - I just finished wrapping some presents! Would you like to chat? 🎁",
+  "Ho ho ho! The elves are busy making toys, and I'm here to spread some Christmas cheer with you! ✨",
+  "Ho ho ho! My magical snow globe told me you were coming! I'm so happy you're here! ❄️"
 ];
 
 function chatReducer(state: ChatState, action: ChatAction): ChatState {
@@ -49,16 +54,6 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
       return {
         ...state,
         messages: [],
-        gifts: [],
-      };
-    case 'ADD_GIFT':
-      return { ...state, gifts: [...state.gifts, action.payload] };
-    case 'UPDATE_GIFT':
-      return {
-        ...state,
-        gifts: state.gifts.map(gift =>
-          gift.id === action.payload.id ? { ...gift, ...action.payload } : gift
-        ),
       };
     case 'SET_ERROR':
       return { ...state, status: 'error', error: action.payload };
@@ -103,8 +98,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             content,
             messages: state.messages,
             sessionId: state.session.id,
-            conversationId: state.session.id,
-            parentEmail: state.session.parentEmail,
           }),
         });
 
@@ -170,13 +163,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state.session]);
 
-  const updateGift = useCallback((id: string, updates: Partial<Gift>) => {
-    dispatch({
-      type: 'UPDATE_GIFT',
-      payload: { id, ...updates },
-    });
-  }, []);
-
   const retryMessage = useCallback(
     async (messageId: string) => {
       const message = state.messages.find(m => m.id === messageId);
@@ -205,7 +191,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     dispatch,
     sendMessage,
     endSession,
-    updateGift,
     retryMessage,
   };
 

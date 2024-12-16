@@ -8,25 +8,12 @@ export interface ChatMessage {
   status?: 'sending' | 'sent' | 'error'
 }
 
-// Gift Types
-export interface Gift {
-  id: string
-  name: string
-  mentioned: number // How many times mentioned
-  firstMentioned: number // Timestamp
-  category?: string
-  priority?: 'high' | 'medium' | 'low'
-  notes?: string
-}
-
 // Session Types
 export interface ChatSession {
   id: string
-  parentEmail: string
   startTime: number
   lastActive: number
   messages: ChatMessage[]
-  gifts: Gift[]
   childName?: string
   ended?: boolean
 }
@@ -67,16 +54,8 @@ export interface ChristmasTheme {
   ornament: string
 }
 
-// Component Props
-export interface EmailGateProps {
-  onSubmit: (email: string) => Promise<void>
-  isLoading?: boolean
-  error?: string
-}
-
 export interface ChatInterfaceProps {
   sessionId: string
-  parentEmail: string
   onEnd?: () => void
   className?: string
 }
@@ -95,7 +74,6 @@ export type MessageHandler = (message: string) => Promise<void>
 // Event Callbacks
 export interface ChatCallbacks {
   onMessageSent?: (message: ChatMessage) => void
-  onGiftMentioned?: (gift: Gift) => void
   onSessionEnd?: () => void
 }
 

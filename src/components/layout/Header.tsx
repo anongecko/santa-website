@@ -1,34 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { SparkleButton } from '@/components/animations/Sparkles';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import {
   Bell,
-  Menu,
-  Home,
-  Gift,
-  Shield,
-  MessageCircle,
-  Mail,
-  Link2,
-  Twitter,
   ChevronDown,
   ExternalLink,
+  Gift,
+  Home,
   LineChart,
+  Link2,
+  Mail,
+  Menu,
+  MessageCircle,
+  Shield,
+  Twitter,
 } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { SparkleButton } from '@/components/animations/Sparkles';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
-import Image from 'next/image';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { CountdownBanner } from './CountdownBanner';
 
 const navItems = [
   { name: 'Home', path: '#hero', section: 'hero', icon: Home },
@@ -92,6 +93,8 @@ export function Header() {
   const [imageError, setImageError] = useState(false);
   const [isLinksOpen, setIsLinksOpen] = useState(false);
   const [progress, setProgress] = useState(0);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const bannerRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.2], [0, 1]);
@@ -99,21 +102,22 @@ export function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      const bannerHeight = bannerRef.current?.offsetHeight || 0;
+      setIsScrolled(window.scrollY > 20 + bannerHeight);
 
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
       const currentProgress = Math.min(window.scrollY / totalHeight, 1);
       setProgress(currentProgress);
 
-      // Update active section
-      const sections = navItems.map(item => item.section);
+      const sections = navItems.map((item) => item.section);
       let currentSection = 'hero';
 
       for (const section of sections) {
         const element = document.querySelector(`section[data-section="${section}"]`);
         if (element) {
           const rect = element.getBoundingClientRect();
-          if (rect.top <= 100 && rect.bottom >= 100) {
+          const offset = bannerHeight + (headerRef.current?.offsetHeight || 0);
+          if (rect.top <= offset && rect.bottom >= offset) {
             currentSection = section;
             break;
           }
@@ -134,16 +138,18 @@ export function Header() {
     const element = document.querySelector(`section[data-section="${section}"]`);
 
     if (element) {
-      const headerHeight = 80; // Fixed header height
+      const bannerHeight = bannerRef.current?.offsetHeight || 0;
+      const headerHeight = headerRef.current?.offsetHeight || 0;
+      const offset = bannerHeight + headerHeight;
+
       const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-      const offsetPosition = elementPosition - headerHeight;
+      const offsetPosition = elementPosition - offset;
 
       window.scrollTo({
         top: offsetPosition,
         behavior: 'smooth',
       });
 
-      // Close mobile menu if open
       const closeButton = document.querySelector(
         'button[aria-label="Close"]'
       ) as HTMLButtonElement | null;
@@ -206,163 +212,169 @@ export function Header() {
   );
 
   return (
-    <motion.header
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      className={cn(
-        'fixed top-0 w-full z-50 transition-all duration-500',
-        'bg-santa-red',
-        isScrolled ? 'shadow-lg bg-opacity-95 backdrop-blur-sm' : 'bg-opacity-90'
-      )}
-    >
-      <div className="container mx-auto px-4 h-20">
-        <div className="flex items-center justify-between h-full">
-          {/* Logo */}
-          <div
-            className="flex items-center space-x-3 group cursor-pointer"
-            onClick={() => scrollToSection('#hero')}
-          >
-            <motion.div
-              whileHover={{ rotate: [0, -10, 10, 0] }}
-              transition={{ duration: 0.5 }}
-              className="relative w-10 h-10 flex items-center justify-center"
+    <div className="fixed top-0 left-0 right-0 z-50 flex flex-col">
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className={cn(
+          'w-full transition-all duration-500',
+          'bg-santa-red',
+          isScrolled ? 'shadow-lg bg-opacity-95 backdrop-blur-sm' : 'bg-opacity-90'
+        )}
+      >
+        <div className="container mx-auto px-4 h-20">
+          <div className="flex items-center justify-between h-full">
+            {/* Logo */}
+            <div
+              className="flex items-center space-x-3 group cursor-pointer"
+              onClick={() => scrollToSection('#hero')}
             >
-              {!imageError ? (
-                <Image
-                  src="/images/santa.svg"
-                  alt="Santa Chat Logo"
-                  width={40}
-                  height={40}
-                  className="object-contain"
-                  priority
-                  onError={() => setImageError(true)}
-                />
-              ) : (
-                <Bell className="w-8 h-8 text-white" />
-              )}
-            </motion.div>
-            <motion.span
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="font-bold text-xl text-white hidden sm:inline-block
+              <motion.div
+                whileHover={{ rotate: [0, -10, 10, 0] }}
+                transition={{ duration: 0.5 }}
+                className="relative w-10 h-10 flex items-center justify-center"
+              >
+                {!imageError ? (
+                  <Image
+                    src="/images/santa.svg"
+                    alt="Santa Chat Logo"
+                    width={40}
+                    height={40}
+                    className="object-contain"
+                    priority
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  <Bell className="w-8 h-8 text-white" />
+                )}
+              </motion.div>
+              <motion.span
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="font-bold text-xl text-white hidden sm:inline-block
                        group-hover:scale-105 transition-transform"
-            >
-              Santa Chat
-            </motion.span>
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center justify-center flex-1 mx-10">
-            <div className="flex items-center space-x-1">
-              {navItems.map(item => (
-                <motion.button
-                  key={item.path}
-                  onClick={() => scrollToSection(item.path)}
-                  className={cn(
-                    'px-4 py-2 rounded-full text-sm font-medium',
-                    'text-white/90 hover:text-white transition-colors',
-                    'flex items-center gap-2',
-                    activeSection === item.section && 'bg-white/10 text-white'
-                  )}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.name}
-                </motion.button>
-              ))}
-              <LinksButton />
+              >
+                Santa Chat
+              </motion.span>
             </div>
-          </nav>
 
-          {/* CTA Button */}
-          {pathname !== '/chat' && (
-            <div className="hidden lg:block">
-              <SparkleButton>
-                <Button
-                  size="lg"
-                  className={cn(
-                    'bg-[#3c8d0d] hover:bg-[#4bae11] text-white',
-                    'px-8 py-6 rounded-full shadow-lg transition-all',
-                    'duration-300 hover:scale-105 hover:shadow-xl',
-                    'font-bold text-lg'
-                  )}
-                  asChild
-                >
-                  <Link href="/chat">
-                    <span className="flex items-center gap-2">
-                      Chat with Santa!
-                      <Bell className="w-5 h-5" />
-                    </span>
-                  </Link>
-                </Button>
-              </SparkleButton>
-            </div>
-          )}
-
-          {/* Mobile Menu */}
-          <Sheet>
-            <SheetTrigger asChild className="lg:hidden">
-              <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent className="bg-santa-red/95 backdrop-blur-sm">
-              <SheetHeader>
-                <SheetTitle className="text-white">Menu</SheetTitle>
-              </SheetHeader>
-              <div className="mt-6 flex flex-col space-y-2">
-                {navItems.map(item => (
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center justify-center flex-1 mx-10">
+              <div className="flex items-center space-x-1">
+                {navItems.map((item) => (
                   <motion.button
                     key={item.path}
                     onClick={() => scrollToSection(item.path)}
                     className={cn(
-                      'flex items-center gap-3 px-4 py-3 rounded-lg',
+                      'px-4 py-2 rounded-full text-sm font-medium',
                       'text-white/90 hover:text-white transition-colors',
-                      'hover:bg-white/10',
+                      'flex items-center gap-2',
                       activeSection === item.section && 'bg-white/10 text-white'
                     )}
+                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <item.icon className="w-5 h-5" />
+                    <item.icon className="w-4 h-4" />
                     {item.name}
                   </motion.button>
                 ))}
-                <div className="px-4 py-3">
-                  <LinksButton />
-                </div>
-                {pathname !== '/chat' && (
-                  <SparkleButton className="w-full mt-4">
-                    <Button
-                      className="w-full bg-[#3c8d0d] hover:bg-[#4bae11]
-                               text-white font-bold py-6"
-                      asChild
-                    >
-                      <Link href="/chat">
-                        <span className="flex items-center gap-2">
-                          Chat with Santa!
-                          <Bell className="w-5 h-5" />
-                        </span>
-                      </Link>
-                    </Button>
-                  </SparkleButton>
-                )}
+                <LinksButton />
               </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </div>
+            </nav>
 
-      {/* Progress Bar */}
-      <motion.div
-        className="absolute bottom-0 left-0 h-1 bg-white/20"
-        style={{
-          scaleX: progress,
-          transformOrigin: '0%',
-          opacity,
-          scale,
-        }}
-      />
-    </motion.header>
+            {/* CTA Button */}
+            {pathname !== '/chat' && (
+              <div className="hidden lg:block">
+                <SparkleButton>
+                  <Button
+                    size="lg"
+                    className={cn(
+                      'bg-[#3c8d0d] hover:bg-[#4bae11] text-white',
+                      'px-8 py-6 rounded-full shadow-lg transition-all',
+                      'duration-300 hover:scale-105 hover:shadow-xl',
+                      'font-bold text-lg'
+                    )}
+                    asChild
+                  >
+                    <Link href="/chat">
+                      <span className="flex items-center gap-2">
+                        Chat with Santa!
+                        <Bell className="w-5 h-5" />
+                      </span>
+                    </Link>
+                  </Button>
+                </SparkleButton>
+              </div>
+            )}
+
+            {/* Mobile Menu */}
+            <Sheet>
+              <SheetTrigger asChild className="lg:hidden">
+                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="bg-santa-red/95 backdrop-blur-sm">
+                <SheetHeader>
+                  <SheetTitle className="text-white">Menu</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6 flex flex-col space-y-2">
+                  {navItems.map((item) => (
+                    <motion.button
+                      key={item.path}
+                      onClick={() => scrollToSection(item.path)}
+                      className={cn(
+                        'flex items-center gap-3 px-4 py-3 rounded-lg',
+                        'text-white/90 hover:text-white transition-colors',
+                        'hover:bg-white/10',
+                        activeSection === item.section && 'bg-white/10 text-white'
+                      )}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      {item.name}
+                    </motion.button>
+                  ))}
+                  <div className="px-4 py-3">
+                    <LinksButton />
+                  </div>
+                  {pathname !== '/chat' && (
+                    <SparkleButton className="w-full mt-4">
+                      <Button
+                        className="w-full bg-[#3c8d0d] hover:bg-[#4bae11]
+                               text-white font-bold py-6"
+                        asChild
+                      >
+                        <Link href="/chat">
+                          <span className="flex items-center gap-2">
+                            Chat with Santa!
+                            <Bell className="w-5 h-5" />
+                          </span>
+                        </Link>
+                      </Button>
+                    </SparkleButton>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <motion.div
+          className="absolute bottom-0 left-0 h-1 bg-white/20"
+          style={{
+            scaleX: progress,
+            transformOrigin: '0%',
+            opacity,
+            scale,
+          }}
+        />
+      </motion.header>
+
+      <div ref={bannerRef} className="w-full">
+        <CountdownBanner />
+      </div>
+    </div>
   );
 }

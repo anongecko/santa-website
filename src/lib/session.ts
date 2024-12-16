@@ -6,7 +6,6 @@ export async function validateSession(sessionId: string) {
       return { isValid: false, error: 'No session ID provided' };
     }
 
-    // Allow preview session for initial state
     if (sessionId === 'preview') {
       return {
         isValid: true,
@@ -40,7 +39,6 @@ export async function validateSession(sessionId: string) {
       return { isValid: false, error: 'Session is not active' };
     }
 
-    // Create conversation if none exists
     if (!session.conversations.length) {
       try {
         const newConversation = await prisma.conversation.create({
@@ -52,7 +50,6 @@ export async function validateSession(sessionId: string) {
         session.conversations = [newConversation];
       } catch (error) {
         console.error('Error creating conversation:', error);
-        // Continue even if conversation creation fails
       }
     }
 
@@ -66,49 +63,21 @@ export async function validateSession(sessionId: string) {
   }
 }
 
-export async function getOrCreateSession(parentEmail: string) {
+export async function createNewSession() {
   try {
-    // Check for existing active session
-    let session = await prisma.chatSession.findFirst({
-      where: {
-        parentEmail,
+    const session = await prisma.chatSession.create({
+      data: {
         status: 'active',
-      },
-      include: {
         conversations: {
-          where: {
+          create: {
             status: 'active',
           },
         },
       },
+      include: {
+        conversations: true,
+      },
     });
-
-    if (!session) {
-      // Create new session with conversation
-      session = await prisma.chatSession.create({
-        data: {
-          parentEmail,
-          status: 'active',
-          conversations: {
-            create: {
-              status: 'active',
-            },
-          },
-        },
-        include: {
-          conversations: true,
-        },
-      });
-    } else if (!session.conversations.length) {
-      // Add conversation to existing session if needed
-      const conversation = await prisma.conversation.create({
-        data: {
-          sessionId: session.id,
-          status: 'active',
-        },
-      });
-      session.conversations = [conversation];
-    }
 
     return session;
   } catch (error) {
@@ -117,7 +86,6 @@ export async function getOrCreateSession(parentEmail: string) {
   }
 }
 
-// New helper function to check session state
 export async function isSessionValid(sessionId: string): Promise<boolean> {
   if (sessionId === 'preview') return true;
 

@@ -41,17 +41,56 @@
     --radius: 0.75rem;
   }
 
-  .chat-theme {
-  /* Chat-specific colors without affecting main page */
+/* In globals.css, add to the .chat-theme section */
+.chat-theme {
   --chat-background: var(--cozy-cream);
   --chat-sidebar-bg: var(--santa-red);
   --chat-sidebar-bg-dark: var(--santa-red-dark);
   --chat-panel-bg: var(--holly-green);
-  --chat-message-ai-bg: 0 0% 100%;
+  --chat-message-ai-bg: hsl(144 31% 97%);  /* Very light holly green */
   --chat-message-user-bg: var(--santa-red);
   --chat-text-light: 0 0% 100%;
   --chat-text-dark: 240 10% 3.9%;
+  --chat-card-border: hsl(144 31% 40% / 0.2);  /* Subtle holly green */
+  --chat-input-bg: hsl(144 31% 98%);  /* Very light holly green */
+  --chat-header-bg: linear-gradient(to right, hsl(144 31% 97%), hsl(144 31% 99%));
+  --chat-message-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --chat-message-glow: 0 0 15px hsl(45 94% 58% / 0.2);
 }
+
+/* Add keyframes for animations */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.snowflake-corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  animation: twinkle 2s infinite;
+}
+
+.snowflake-corner::before {
+  content: "❄";
+  color: hsl(var(--holly-green-light) / 0.3);
+}
+
+.top-left { top: 2px; left: 2px; }
+.top-right { top: 2px; right: 2px; }
+.bottom-left { bottom: 2px; left: 2px; }
+.bottom-right { bottom: 2px; right: 2px; }
 
   .dark {
     --background: 20 14.3% 4.1%;

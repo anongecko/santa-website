@@ -1,18 +1,18 @@
-// src/app/api/chat/history/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isSessionValid } from '@/lib/session';
 
-export async function GET(req: Request) {
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const sessionId = searchParams.get('sessionId');
+    const sessionId = request.nextUrl.searchParams.get('sessionId');
 
     if (!sessionId) {
       return NextResponse.json({ error: 'Session ID is required' }, { status: 400 });
     }
 
-    // Handle preview session
     if (sessionId === 'preview') {
       return NextResponse.json({
         session: {
@@ -20,11 +20,9 @@ export async function GET(req: Request) {
           startTime: new Date(),
           endTime: null,
           status: 'active',
-          parentEmail: 'preview@example.com',
           lastActive: new Date(),
         },
         messages: [],
-        gifts: [],
       });
     }
 
@@ -42,9 +40,6 @@ export async function GET(req: Request) {
             messages: {
               orderBy: { timestamp: 'asc' },
             },
-            gifts: {
-              orderBy: [{ priority: 'desc' }, { mentionCount: 'desc' }],
-            },
           },
         },
       },
@@ -54,8 +49,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });
     }
 
-    const allMessages = session.conversations.flatMap(conv => conv.messages);
-    const allGifts = session.conversations.flatMap(conv => conv.gifts);
+    const allMessages = session.conversations.flatMap((conv) => conv.messages);
     const lastMessage = allMessages[allMessages.length - 1];
 
     return NextResponse.json({
@@ -64,11 +58,9 @@ export async function GET(req: Request) {
         startTime: session.startTime,
         endTime: session.endTime,
         status: session.status,
-        parentEmail: session.parentEmail,
         lastActive: lastMessage?.timestamp || session.startTime,
       },
       messages: allMessages,
-      gifts: allGifts,
     });
   } catch (error) {
     console.error('Error fetching chat history:', error);

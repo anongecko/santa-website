@@ -1,71 +1,72 @@
+import { Redis } from '@upstash/redis';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { Redis } from '@upstash/redis';
 
-// Initialize Redis
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL!,
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-// Rate limit configuration
-const RATE_LIMIT_MAX = 20; // Max requests per window
-const RATE_LIMIT_WINDOW = 60; // Window in seconds
-const BLOCK_DURATION = 300; // Block duration in seconds if limit exceeded
+const RATE_LIMIT_MAX = 20;
+const RATE_LIMIT_WINDOW = 60;
+const BLOCK_DURATION = 300;
 
-async function getRateLimit(identifier: string) {
+interface RateLimit {
+  limited: boolean;
+  remaining: number;
+  reset?: number;
+}
+
+interface RedisZRecord {
+  member: string;
+  score: number;
+}
+
+async function getRateLimit(identifier: string): Promise<RateLimit> {
   const key = `ratelimit:${identifier}`;
   const now = Date.now();
   const windowStart = now - RATE_LIMIT_WINDOW * 1000;
 
   try {
-    // Get and clean existing records
-    const records = await redis.zrangebyscore(key, windowStart, '+inf');
-    if (!records.length) {
+    const blockKey = `ratelimit:blocked:${identifier}`;
+    const isBlocked = await redis.get<string>(blockKey);
+
+    if (isBlocked) {
+      return { limited: true, remaining: 0, reset: parseInt(isBlocked) };
+    }
+
+    const records = await redis.zrange<RedisZRecord[]>(key, 0, -1, { withScores: true });
+    const validRecords = records.filter((record) => record.score > windowStart);
+
+    if (validRecords.length === 0) {
       await redis.zadd(key, { score: now, member: now.toString() });
       await redis.expire(key, RATE_LIMIT_WINDOW);
       return { limited: false, remaining: RATE_LIMIT_MAX - 1 };
     }
 
-    // Check if blocked
-    const blockKey = `ratelimit:blocked:${identifier}`;
-    const isBlocked = await redis.get(blockKey);
-    if (isBlocked) {
-      return { limited: true, remaining: 0, reset: parseInt(isBlocked) };
-    }
-
-    // Clean old records
-    await redis.zremrangebyscore(key, 0, windowStart);
-    const count = records.length;
-
-    if (count >= RATE_LIMIT_MAX) {
-      // Block if significantly over limit
-      if (count >= RATE_LIMIT_MAX * 1.5) {
+    if (validRecords.length >= RATE_LIMIT_MAX) {
+      if (validRecords.length >= RATE_LIMIT_MAX * 1.5) {
         const blockUntil = now + BLOCK_DURATION * 1000;
-        await redis.set(blockKey, blockUntil.toString(), {
-          ex: BLOCK_DURATION,
-        });
+        await redis.set(blockKey, blockUntil.toString(), { ex: BLOCK_DURATION });
         return { limited: true, remaining: 0, reset: blockUntil };
       }
+      const oldestValidRequest = validRecords[0].score;
       return {
         limited: true,
         remaining: 0,
-        reset: parseInt(records[0]) + RATE_LIMIT_WINDOW * 1000,
+        reset: oldestValidRequest + RATE_LIMIT_WINDOW * 1000,
       };
     }
 
-    // Add new request record
     await redis.zadd(key, { score: now, member: now.toString() });
-    return { limited: false, remaining: RATE_LIMIT_MAX - (count + 1) };
+    return { limited: false, remaining: RATE_LIMIT_MAX - (validRecords.length + 1) };
   } catch (error) {
     console.error('Rate limit error:', error);
-    // Fail open if Redis is down
     return { limited: false, remaining: RATE_LIMIT_MAX - 1 };
   }
 }
 
 export async function middleware(request: NextRequest) {
-  // Basic security headers
   const headers = new Headers({
     'X-Frame-Options': 'DENY',
     'X-Content-Type-Options': 'nosniff',
@@ -74,19 +75,13 @@ export async function middleware(request: NextRequest) {
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
   });
 
-  // API route protection
   if (request.nextUrl.pathname.startsWith('/api/')) {
     const apiKey = request.headers.get('x-api-key');
 
-    // API key check
     if (!apiKey || apiKey !== process.env.API_SECRET) {
-      return new NextResponse('Unauthorized', {
-        status: 401,
-        headers,
-      });
+      return new NextResponse('Unauthorized', { status: 401, headers });
     }
 
-    // Rate limiting
     const ip =
       request.headers.get('x-forwarded-for') ||
       request.headers.get('x-real-ip') ||
@@ -95,16 +90,13 @@ export async function middleware(request: NextRequest) {
 
     const rateLimit = await getRateLimit(ip);
 
-    if (rateLimit.limited) {
-      headers.set('Retry-After', Math.ceil((rateLimit.reset - Date.now()) / 1000).toString());
+    if (rateLimit.limited && rateLimit.reset) {
+      const retryAfter = Math.ceil((rateLimit.reset - Date.now()) / 1000);
+      headers.set('Retry-After', retryAfter.toString());
       headers.set('X-RateLimit-Reset', rateLimit.reset.toString());
-      return new NextResponse('Too Many Requests', {
-        status: 429,
-        headers,
-      });
+      return new NextResponse('Too Many Requests', { status: 429, headers });
     }
 
-    // Add rate limit headers
     headers.set('X-RateLimit-Limit', RATE_LIMIT_MAX.toString());
     headers.set('X-RateLimit-Remaining', rateLimit.remaining.toString());
     if (rateLimit.reset) {
@@ -113,12 +105,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const response = NextResponse.next();
-
-  // Apply security headers to all responses
-  Object.entries(headers).forEach(([key, value]) => {
-    response.headers.set(key, value);
-  });
-
+  headers.forEach((value, key) => response.headers.set(key, value));
   return response;
 }
 

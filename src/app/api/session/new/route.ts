@@ -1,33 +1,27 @@
+// src/app/api/session/new/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function POST(req: Request) {
+export async function POST(_req: Request) {
+  // Added underscore to indicate intentionally unused
   try {
-    const { parentEmail } = await req.json();
-
-    if (!parentEmail) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
-    }
-
     const session = await prisma.chatSession.create({
       data: {
-        parentEmail,
         status: 'active',
         startTime: new Date(),
-        conversations: {
-          create: {
-            status: 'active',
-          },
-        },
       },
-      include: {
-        conversations: true,
+    });
+
+    const conversation = await prisma.conversation.create({
+      data: {
+        sessionId: session.id,
+        status: 'active',
       },
     });
 
     return NextResponse.json({
       sessionId: session.id,
-      conversationId: session.conversations[0].id,
+      conversationId: conversation.id,
       startTime: session.startTime,
     });
   } catch (error) {

@@ -7,9 +7,9 @@ import type { Message } from '@/types/chat';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { content, sessionId, parentEmail } = body;
+    const { content, sessionId } = body;
 
-    if (!content?.trim() || !sessionId || !parentEmail) {
+    if (!content?.trim() || !sessionId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -18,7 +18,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: sessionValidation.error }, { status: 401 });
     }
 
-    // Get or create active conversation
     let conversation = await prisma.conversation.findFirst({
       where: {
         sessionId,
@@ -35,7 +34,6 @@ export async function POST(req: Request) {
       });
     }
 
-    // Save the user message
     await prisma.message.create({
       data: {
         content: content.trim(),
@@ -44,7 +42,6 @@ export async function POST(req: Request) {
       },
     });
 
-    // Get the complete conversation history
     const messages = await prisma.message.findMany({
       where: { conversationId: conversation.id },
       orderBy: { timestamp: 'asc' },
@@ -58,14 +55,11 @@ export async function POST(req: Request) {
       status: 'sent',
     }));
 
-    // Generate AI response
     const response = await aiService.generateSantaResponse(content, {
       messages: formattedMessages,
       sessionId,
-      childEmail: parentEmail,
     });
 
-    // Handle streaming response
     if (response instanceof ReadableStream) {
       const encoder = new TextEncoder();
       const decoder = new TextDecoder();
@@ -80,7 +74,6 @@ export async function POST(req: Request) {
 
           if (fullContent.trim()) {
             try {
-              // Update the message in the database
               await prisma.message.upsert({
                 where: { id: aiMessageId },
                 create: {
@@ -98,7 +91,6 @@ export async function POST(req: Request) {
             }
           }
 
-          // Forward the chunk to the client
           controller.enqueue(encoder.encode(text));
         },
       });
@@ -112,7 +104,6 @@ export async function POST(req: Request) {
       });
     }
 
-    // Handle non-streaming response
     if ('text' in response) {
       const aiMessage = await prisma.message.create({
         data: {
@@ -122,36 +113,8 @@ export async function POST(req: Request) {
         },
       });
 
-      if (response.gifts?.length) {
-        await Promise.all(
-          response.gifts.map(gift =>
-            prisma.gift.upsert({
-              where: {
-                name_conversationId: {
-                  name: gift.name,
-                  conversationId: conversation.id,
-                },
-              },
-              update: {
-                mentionCount: { increment: 1 },
-                priority: gift.priority || 'medium',
-                confidence: gift.confidence || 0.5,
-              },
-              create: {
-                name: gift.name,
-                priority: gift.priority || 'medium',
-                confidence: gift.confidence || 0.5,
-                mentionCount: 1,
-                conversationId: conversation.id,
-              },
-            })
-          )
-        );
-      }
-
       return NextResponse.json({
         message: aiMessage,
-        gifts: response.gifts,
       });
     }
 
