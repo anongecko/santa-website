@@ -308,7 +308,7 @@ export function FeaturesSection() {
                     className="flex items-center gap-2"
                     whileHover={{ x: 5 }}
                   >
-                    Get $SANTA
+                    View Chart
                     <ExternalLink className="w-5 h-5" />
                   </motion.span>
                 </Button>

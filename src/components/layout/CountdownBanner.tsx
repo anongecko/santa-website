@@ -1,14 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 
 interface TimeLeft {
@@ -16,6 +11,23 @@ interface TimeLeft {
   hours: string;
   minutes: string;
 }
+
+const TimeUnit = ({ value, label }: { value: string; label: string }) => (
+  <div className="flex items-baseline">
+    <AnimatePresence mode="wait">
+      <motion.span
+        key={value}
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 10, opacity: 0 }}
+        className="text-lg sm:text-2xl font-bold"
+      >
+        {value}
+      </motion.span>
+    </AnimatePresence>
+    <span className="text-xs sm:text-sm ml-1">{label}</span>
+  </div>
+);
 
 export function CountdownBanner() {
   const [isVisible, setIsVisible] = useState(true);
@@ -47,7 +59,6 @@ export function CountdownBanner() {
 
     calculateTimeLeft();
     const timer = setInterval(calculateTimeLeft, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
@@ -64,44 +75,16 @@ export function CountdownBanner() {
       <AccordionItem value="expanded" className="border-none">
         <div className="w-full bg-[hsl(var(--holly-green))] text-white shadow-lg">
           <div className="max-w-7xl mx-auto p-2 sm:p-2.5 relative">
-            {/* Main Content */}
             <div className="text-center pr-16">
-              {' '}
-              {/* Increased right padding to accommodate buttons */}
               <h2 className="text-sm sm:text-base font-medium mb-1">
                 Coming Soon: AI-Powered Gift Wishlist Email Feature
               </h2>
-              {/* Countdown Timer */}
               <div className="flex justify-center items-center gap-2 sm:gap-4 mb-0.5 font-mono">
-                <motion.div
-                  key={timeLeft.days}
-                  initial={{ y: -10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  className="flex items-baseline"
-                >
-                  <span className="text-lg sm:text-2xl font-bold">{timeLeft.days}</span>
-                  <span className="text-xs sm:text-sm ml-1">days</span>
-                </motion.div>
+                <TimeUnit value={timeLeft.days} label="days" />
                 <span className="text-lg sm:text-2xl">:</span>
-                <motion.div
-                  key={timeLeft.hours}
-                  initial={{ y: -10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  className="flex items-baseline"
-                >
-                  <span className="text-lg sm:text-2xl font-bold">{timeLeft.hours}</span>
-                  <span className="text-xs sm:text-sm ml-1">hrs</span>
-                </motion.div>
+                <TimeUnit value={timeLeft.hours} label="hrs" />
                 <span className="text-lg sm:text-2xl">:</span>
-                <motion.div
-                  key={timeLeft.minutes}
-                  initial={{ y: -10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  className="flex items-baseline"
-                >
-                  <span className="text-lg sm:text-2xl font-bold">{timeLeft.minutes}</span>
-                  <span className="text-xs sm:text-sm ml-1">min</span>
-                </motion.div>
+                <TimeUnit value={timeLeft.minutes} label="min" />
               </div>
             </div>
 
@@ -114,8 +97,6 @@ export function CountdownBanner() {
               >
                 {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
-
-              {/* Close Button */}
               <Button
                 variant="ghost"
                 size="icon"
