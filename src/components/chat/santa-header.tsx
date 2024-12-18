@@ -1,31 +1,31 @@
-'use client'
+'use client';
 
-import { Button } from "@/components/ui/button"
-import { 
+import { Button } from '@/components/ui/button';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu"
-import { Bell, ChevronDown } from "lucide-react"
-import Link from "next/link"
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Bell, ChevronDown } from 'lucide-react';
+import Link from 'next/link';
 
 export function SantaHeader() {
   return (
-    <div className="p-4 border-b border-white/10">
+    <div className="border-b border-white/10 p-4">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start gap-2 text-white/80 hover:text-white hover:bg-white/5"
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-2 text-white/80 hover:bg-white/5 hover:text-white"
           >
-            <div className="w-8 h-8 rounded-full bg-santa-red/20 flex items-center justify-center">
-              <Bell className="w-5 h-5 text-santa-red" />
+            <div className="bg-santa-red/20 flex h-8 w-8 items-center justify-center rounded-full">
+              <Bell className="text-santa-red h-5 w-5" />
             </div>
             <div className="flex-1 text-left">
-              <div className="text-sm font-medium">$SANTA AI</div>
+              <div className="text-sm font-medium">$REDONE AI</div>
             </div>
-            <ChevronDown className="w-4 h-4 opacity-50" />
+            <ChevronDown className="h-4 w-4 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -35,5 +35,5 @@ export function SantaHeader() {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  )
+  );
 }

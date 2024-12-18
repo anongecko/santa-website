@@ -50,9 +50,11 @@ const STEPS: Step[] = [
       'No account needed',
     ],
     preview: (
-      <div className="flex flex-col items-center justify-center gap-6 w-full max-w-md mx-auto">
+      <div className="mx-auto flex w-full max-w-md flex-col items-center justify-center gap-6">
         <div className="w-full space-y-3">
-          <div className="text-sm text-muted-foreground mb-2">Parent's Email</div>
+          <div className="text-muted-foreground mb-2 text-sm">
+            Parent's Email
+          </div>
           <Input
             type="email"
             placeholder="parent@email.com"
@@ -63,26 +65,19 @@ const STEPS: Step[] = [
         </div>
 
         <div className="w-full space-y-4">
-          <Button
-            className="w-full bg-santa-red hover:bg-santa-red-dark text-white
-                   shadow-lg hover:shadow-xl transition-all duration-300
-                   flex items-center justify-center gap-2 py-6"
-          >
-            <Mail className="w-5 h-5" />
+          <Button className="bg-santa-red hover:bg-santa-red-dark flex w-full items-center justify-center gap-2 py-6 text-white shadow-lg transition-all duration-300 hover:shadow-xl">
+            <Mail className="h-5 w-5" />
             <span className="text-base">Verify Email</span>
           </Button>
 
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <Shield className="w-4 h-4" />
+          <div className="text-muted-foreground flex items-center justify-center gap-2 text-sm">
+            <Shield className="h-4 w-4" />
             <span>Secure & Private</span>
           </div>
         </div>
 
-        <div
-          className="flex items-center gap-3 text-sm text-muted-foreground/80 
-                    bg-background/50 px-4 py-2 rounded-full border"
-        >
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+        <div className="text-muted-foreground/80 bg-background/50 flex items-center gap-3 rounded-full border px-4 py-2 text-sm">
+          <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
           Ready to spread Christmas magic
         </div>
       </div>
@@ -103,15 +98,15 @@ const STEPS: Step[] = [
     ],
     preview: (
       <div className="space-y-4">
-        <div className="bg-santa-red text-white p-3 rounded-xl max-w-[80%]">
+        <div className="bg-santa-red max-w-[80%] rounded-xl p-3 text-white">
           Ho ho ho! What's your name? I hear you've been very good this year! 🎅
         </div>
-        <div className="bg-background border p-3 rounded-xl max-w-[80%] ml-auto">
+        <div className="bg-background ml-auto max-w-[80%] rounded-xl border p-3">
           Hi Santa! I'm Emily! I've been helping mom and dad a lot!
         </div>
-        <div className="bg-santa-red text-white p-3 rounded-xl max-w-[80%]">
-          That's wonderful to hear, Emily! Would you like to tell me what you'd love for Christmas?
-          ✨
+        <div className="bg-santa-red max-w-[80%] rounded-xl p-3 text-white">
+          That's wonderful to hear, Emily! Would you like to tell me what you'd
+          love for Christmas? ✨
         </div>
       </div>
     ),
@@ -138,18 +133,20 @@ const STEPS: Step[] = [
         ].map((gift, i) => (
           <div
             key={i}
-            className="flex items-center justify-between p-3 rounded-lg border bg-background"
+            className="bg-background flex items-center justify-between rounded-lg border p-3"
           >
             <div className="flex items-center gap-2">
-              <Gift className="w-4 h-4 text-winter-blue" />
+              <Gift className="text-winter-blue h-4 w-4" />
               <div>
                 <div>{gift.name}</div>
-                <div className="text-xs text-muted-foreground">{gift.price}</div>
+                <div className="text-muted-foreground text-xs">
+                  {gift.price}
+                </div>
               </div>
             </div>
             <span
               className={cn(
-                'text-xs px-2 py-1 rounded-full',
+                'rounded-full px-2 py-1 text-xs',
                 gift.priority === 'High'
                   ? 'bg-santa-red/10 text-santa-red'
                   : 'bg-winter-blue/10 text-winter-blue'
@@ -176,28 +173,29 @@ const STEPS: Step[] = [
       'Safe & secure',
     ],
     preview: (
-      <div className="relative rounded-xl border p-6 space-y-4 bg-background">
+      <div className="bg-background relative space-y-4 rounded-xl border p-6">
         <div className="flex items-center gap-3">
-          <Bell className="w-6 h-6 text-christmas-gold" />
+          <Bell className="text-christmas-gold h-6 w-6" />
           <div>
             <div className="font-medium">Wishlist Ready!</div>
-            <div className="text-sm text-muted-foreground">Sent to: northpole@santa.com</div>
+            <div className="text-muted-foreground text-sm">
+              Sent to: northpole@santa.com
+            </div>
           </div>
         </div>
 
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm">
-            <Shield className="w-4 h-4 text-holly-green" />
+            <Shield className="text-holly-green h-4 w-4" />
             <span>Encrypted & Secure Delivery</span>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            {[1, 2].map(i => (
+            {[1, 2].map((i) => (
               <div
                 key={i}
-                className="h-20 border-2 border-dashed border-christmas-gold/20 
-                         rounded-lg flex items-center justify-center bg-background"
+                className="border-christmas-gold/20 bg-background flex h-20 items-center justify-center rounded-lg border-2 border-dashed"
               >
-                <Gift className="w-6 h-6 text-christmas-gold/40" />
+                <Gift className="text-christmas-gold/40 h-6 w-6" />
               </div>
             ))}
           </div>
@@ -214,12 +212,12 @@ interface PreviewProps {
 
 function Preview({ step, isLeft }: PreviewProps) {
   return (
-    <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center w-full">
+    <div className="grid w-full items-center gap-6 md:grid-cols-2 md:gap-10">
       {/* Content Preview */}
       <div
         className={cn(
-          'p-4 md:p-6 rounded-xl border bg-background/95 dark:bg-background/20',
-          'w-full h-full min-h-[200px]',
+          'bg-background/95 dark:bg-background/20 rounded-xl border p-4 md:p-6',
+          'h-full min-h-[200px] w-full',
           'flex items-center justify-center',
           'order-2',
           isLeft && 'md:order-1'
@@ -231,7 +229,7 @@ function Preview({ step, isLeft }: PreviewProps) {
       {/* Animation Container */}
       <div
         className={cn(
-          'w-full aspect-square md:aspect-auto',
+          'aspect-square w-full md:aspect-auto',
           'relative flex items-center justify-center',
           'order-1 min-h-[200px] md:min-h-[300px]',
           isLeft && 'md:order-2'
@@ -239,7 +237,7 @@ function Preview({ step, isLeft }: PreviewProps) {
       >
         <Player
           src={step.animation}
-          className="w-full h-full"
+          className="h-full w-full"
           loop={true}
           autoplay={true}
           style={{
@@ -265,15 +263,15 @@ interface StepColumnProps {
 
 function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {steps.map(step => (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {steps.map((step) => (
         <div
           key={step.id}
           className={cn(
-            'relative p-4 rounded-xl transition-all duration-300',
+            'relative rounded-xl p-4 transition-all duration-300',
             'min-h-[160px] md:min-h-[220px]',
             'hover:bg-background/50 dark:hover:bg-background/10',
-            'hover:shadow-md dark:hover:shadow-background/5',
+            'dark:hover:shadow-background/5 hover:shadow-md',
             'cursor-pointer overflow-hidden',
             'border border-transparent',
             'flex flex-col',
@@ -287,7 +285,7 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
           role="button"
           tabIndex={0}
           aria-pressed={activeStep === step.id}
-          onKeyDown={e => {
+          onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
               setActiveStep(step.id);
@@ -298,7 +296,7 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
             <div className="flex items-start gap-3">
               <div
                 className={cn(
-                  'w-10 h-10 rounded-xl shrink-0',
+                  'h-10 w-10 shrink-0 rounded-xl',
                   `bg-${step.color}/10 dark:bg-${step.color}/5`,
                   'flex items-center justify-center',
                   'transition-transform duration-300',
@@ -323,7 +321,7 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
                 >
                   <step.icon
                     className={cn(
-                      'w-5 h-5',
+                      'h-5 w-5',
                       `text-${step.color}`,
                       'transition-transform duration-300'
                     )}
@@ -331,13 +329,14 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
                 </motion.div>
               </div>
 
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <h3
                     className={cn(
-                      'font-semibold truncate',
+                      'truncate font-semibold',
                       'dark:text-white',
-                      activeStep === step.id && 'text-santa-red dark:text-santa-red-light'
+                      activeStep === step.id &&
+                        'text-santa-red dark:text-santa-red-light'
                     )}
                   >
                     {step.title}
@@ -345,7 +344,7 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
                   {activeStep === step.id && (
                     <motion.div
                       className={cn(
-                        'w-4 h-4 rounded-full shrink-0',
+                        'h-4 w-4 shrink-0 rounded-full',
                         `bg-${step.color}/10 dark:bg-${step.color}/5`,
                         'flex items-center justify-center'
                       )}
@@ -361,16 +360,19 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
                           repeat: Infinity,
                         }}
                       >
-                        <Star className={cn('w-2.5 h-2.5', `text-${step.color}`)} />
+                        <Star
+                          className={cn('h-2.5 w-2.5', `text-${step.color}`)}
+                        />
                       </motion.div>
                     </motion.div>
                   )}
                 </div>
                 <p
                   className={cn(
-                    'text-sm text-muted-foreground dark:text-gray-400',
+                    'text-muted-foreground text-sm dark:text-gray-400',
                     'line-clamp-2',
-                    activeStep === step.id && 'text-foreground dark:text-gray-300'
+                    activeStep === step.id &&
+                      'text-foreground dark:text-gray-300'
                   )}
                 >
                   {step.description}
@@ -380,10 +382,10 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
 
             <div
               className={cn(
-                'transition-all duration-300 overflow-hidden',
+                'overflow-hidden transition-all duration-300',
                 activeStep === step.id
-                  ? 'opacity-100 max-h-[200px]'
-                  : 'opacity-0 max-h-0 md:max-h-[200px] md:opacity-40'
+                  ? 'max-h-[200px] opacity-100'
+                  : 'max-h-0 opacity-0 md:max-h-[200px] md:opacity-40'
               )}
             >
               <div className="space-y-2 pt-2">
@@ -391,13 +393,15 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
                   <div
                     key={i}
                     className={cn(
-                      'flex items-center gap-2 text-sm py-1',
+                      'flex items-center gap-2 py-1 text-sm',
                       'transition-all duration-300',
                       activeStep === step.id && 'translate-x-1'
                     )}
                   >
                     <motion.div
-                      animate={activeStep === step.id ? { x: [0, 2, 0] } : { x: 0 }}
+                      animate={
+                        activeStep === step.id ? { x: [0, 2, 0] } : { x: 0 }
+                      }
                       transition={{
                         duration: 2,
                         ease: 'easeInOut',
@@ -405,13 +409,16 @@ function StepColumn({ steps, activeStep, setActiveStep }: StepColumnProps) {
                         delay: i * 0.2,
                       }}
                     >
-                      <ChevronRight className={cn('w-3 h-3', `text-${step.color}`)} />
+                      <ChevronRight
+                        className={cn('h-3 w-3', `text-${step.color}`)}
+                      />
                     </motion.div>
                     <span
                       className={cn(
                         'line-clamp-2',
                         'text-muted-foreground dark:text-gray-400',
-                        activeStep === step.id && 'text-foreground dark:text-gray-300'
+                        activeStep === step.id &&
+                          'text-foreground dark:text-gray-300'
                       )}
                     >
                       {detail}
@@ -439,13 +446,13 @@ export function HowItWorksSection() {
     let interval: NodeJS.Timeout;
     if (inView && autoPlayEnabled) {
       interval = setInterval(() => {
-        setActiveStep(current => (current < STEPS.length ? current + 1 : 1));
+        setActiveStep((current) => (current < STEPS.length ? current + 1 : 1));
       }, 8000);
     }
     return () => clearInterval(interval);
   }, [inView, autoPlayEnabled]);
 
-  const currentStep = STEPS.find(step => step.id === activeStep) || STEPS[0];
+  const currentStep = STEPS.find((step) => step.id === activeStep) || STEPS[0];
 
   const handleStepChange = (stepId: number) => {
     setAutoPlayEnabled(false);
@@ -461,7 +468,7 @@ export function HowItWorksSection() {
       ref={ref}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        'relative py-12 md:py-20 lg:py-32 overflow-hidden',
+        'relative overflow-hidden py-12 md:py-20 lg:py-32',
         'bg-background dark:bg-background/50',
         'min-h-[calc(100vh-4rem)]',
         'flex flex-col items-center justify-center'
@@ -470,41 +477,45 @@ export function HowItWorksSection() {
     >
       {/* Background Elements */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 dark:bg-gradient-to-b dark:from-background dark:to-background/80" />
+        <div className="dark:from-background dark:to-background/80 absolute inset-0 dark:bg-gradient-to-b" />
         <div className="absolute inset-0 bg-[url('/patterns/grid.svg')] opacity-5" />
       </div>
 
-      <div className="container relative z-10 max-w-7xl mx-auto px-4 w-full">
+      <div className="container relative z-10 mx-auto w-full max-w-7xl px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.5 }}
-          className="text-center space-y-4 mb-12 md:mb-20"
+          className="mb-12 space-y-4 text-center md:mb-20"
         >
           <h2
             className={cn(
-              'text-3xl md:text-4xl lg:text-5xl font-bold',
+              'text-3xl font-bold md:text-4xl lg:text-5xl',
               'bg-clip-text text-transparent',
-              'bg-gradient-to-r from-santa-red to-santa-red-light',
+              'from-santa-red to-santa-red-light bg-gradient-to-r',
               'dark:from-santa-red-light dark:to-santa-red',
-              'px-4 inline-block'
+              'inline-block px-4'
             )}
           >
             How It Works
           </h2>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
+          <p className="text-muted-foreground mx-auto max-w-2xl px-4 text-lg md:text-xl">
             Experience the magic in four simple steps
           </p>
         </motion.div>
 
-        <div className="space-y-12 md:space-y-16 w-full max-w-[1400px] mx-auto">
+        <div className="mx-auto w-full max-w-[1400px] space-y-12 md:space-y-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full"
           >
-            <StepColumn steps={STEPS} activeStep={activeStep} setActiveStep={handleStepChange} />
+            <StepColumn
+              steps={STEPS}
+              activeStep={activeStep}
+              setActiveStep={handleStepChange}
+            />
           </motion.div>
 
           {/* Progress Indicators */}
@@ -514,15 +525,15 @@ export function HowItWorksSection() {
             transition={{ delay: 0.6 }}
             className="flex justify-center gap-3 pt-4"
           >
-            {STEPS.map(step => (
+            {STEPS.map((step) => (
               <motion.button
                 key={step.id}
                 onClick={() => handleStepChange(step.id)}
                 className={cn(
                   'h-1.5 rounded-full transition-all duration-500',
                   activeStep === step.id
-                    ? 'w-8 bg-santa-red'
-                    : 'w-4 bg-santa-red/20 hover:bg-santa-red/40'
+                    ? 'bg-santa-red w-8'
+                    : 'bg-santa-red/20 hover:bg-santa-red/40 w-4'
                 )}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
@@ -530,7 +541,7 @@ export function HowItWorksSection() {
             ))}
             <motion.button
               className={cn(
-                'ml-2 p-2 rounded-full',
+                'ml-2 rounded-full p-2',
                 'text-santa-red/60 hover:text-santa-red',
                 'transition-colors duration-200'
               )}
@@ -538,18 +549,24 @@ export function HowItWorksSection() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
-              {autoPlayEnabled ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              {autoPlayEnabled ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
             </motion.button>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
-            animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+            animate={
+              inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }
+            }
             transition={{ duration: 0.5, delay: 0.4 }}
             className="relative w-full"
           >
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background to-background/0 dark:from-background/0 dark:via-background/20 dark:to-background/0" />
+            <div className="pointer-events-none absolute inset-0">
+              <div className="from-background/0 via-background to-background/0 dark:from-background/0 dark:via-background/20 dark:to-background/0 absolute inset-0 bg-gradient-to-b" />
             </div>
             <AnimatePresence mode="wait">
               <motion.div
@@ -557,7 +574,7 @@ export function HowItWorksSection() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="relative z-10 flex items-center justify-center w-full max-w-5xl mx-auto"
+                className="relative z-10 mx-auto flex w-full max-w-5xl items-center justify-center"
               >
                 <Preview step={currentStep} isLeft={activeStep % 2 === 0} />
               </motion.div>
@@ -568,16 +585,16 @@ export function HowItWorksSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.5, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-6 justify-center mt-8 md:mt-16 w-full max-w-2xl mx-auto px-4"
+            className="mx-auto mt-8 flex w-full max-w-2xl flex-col justify-center gap-6 px-4 sm:flex-row md:mt-16"
           >
             <Link href="/chat" className="w-full sm:w-auto">
               <Button
                 className={cn(
                   'w-full sm:w-auto',
-                  'bg-white dark:bg-white/90 border-2 border-white',
+                  'border-2 border-white bg-white dark:bg-white/90',
                   'text-slate-900 dark:text-slate-800',
                   'hover:bg-white/90 dark:hover:bg-white/80',
-                  'text-base md:text-lg px-6 md:px-8 py-4 md:py-6',
+                  'px-6 py-4 text-base md:px-8 md:py-6 md:text-lg',
                   'rounded-full shadow-lg',
                   'transition-all duration-300',
                   'hover:scale-105 hover:shadow-xl active:scale-95',
@@ -590,7 +607,7 @@ export function HowItWorksSection() {
                   transition={{ duration: 0.2 }}
                 >
                   Chat Now
-                  <ArrowRight className="w-4 md:w-5 h-4 md:h-5 flex-shrink-0" />
+                  <ArrowRight className="h-4 w-4 flex-shrink-0 md:h-5 md:w-5" />
                 </motion.span>
               </Button>
             </Link>
@@ -611,8 +628,8 @@ export function HowItWorksSection() {
                     'shadow-lg hover:shadow-xl',
                     'transition-all duration-300',
                     'hover:scale-105 active:scale-95',
-                    'text-base md:text-lg px-6 md:px-8 py-4 md:py-6',
-                    'rounded-full min-w-[180px] md:min-w-[200px]'
+                    'px-6 py-4 text-base md:px-8 md:py-6 md:text-lg',
+                    'min-w-[180px] rounded-full md:min-w-[200px]'
                   )}
                 >
                   <motion.span
@@ -620,8 +637,8 @@ export function HowItWorksSection() {
                     whileHover={{ x: 5 }}
                     transition={{ duration: 0.2 }}
                   >
-                    Get $SANTA
-                    <ExternalLink className="w-4 md:w-5 h-4 md:h-5 flex-shrink-0" />
+                    Get $REDONE
+                    <ExternalLink className="h-4 w-4 flex-shrink-0 md:h-5 md:w-5" />
                   </motion.span>
                 </Button>
               </Link>
