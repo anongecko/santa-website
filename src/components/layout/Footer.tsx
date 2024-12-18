@@ -1,13 +1,17 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Heart, Mail, Twitter, Shield, Bell, ExternalLink, Clock } from 'lucide-react';
-import { useState } from 'react';
+import {
+  Heart,
+  Mail,
+  Twitter,
+  Shield,
+  Bell,
+  ExternalLink,
+  Clock,
+} from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { SparkleButton } from '@/components/animations/Sparkles';
 import { TelegramIcon } from '@/components/icons/TelegramIcon';
 
 function FooterSection({
@@ -19,9 +23,9 @@ function FooterSection({
 }) {
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold text-lg">{title}</h3>
+      <h3 className="text-lg font-semibold">{title}</h3>
       <ul className="space-y-2">
-        {items.map(item => (
+        {items.map((item) => (
           <motion.li
             key={item.href}
             initial={{ opacity: 0, x: -20 }}
@@ -32,14 +36,14 @@ function FooterSection({
               href={item.href}
               className={cn(
                 'text-muted-foreground hover:text-foreground transition-colors',
-                'flex items-center gap-2 group'
+                'group flex items-center gap-2'
               )}
               target={item.external ? '_blank' : undefined}
               rel={item.external ? 'noopener noreferrer' : undefined}
             >
               {item.label}
               {item.external && (
-                <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity" />
+                <ExternalLink className="h-3 w-3 opacity-50 transition-opacity group-hover:opacity-100" />
               )}
             </Link>
           </motion.li>
@@ -65,9 +69,13 @@ export function Footer() {
     {
       title: 'Socials',
       items: [
-        { label: 'Twitter', href: 'https://twitter.com', external: true },
-        { label: 'Telegram', href: 'https://telegram.me', external: true },
-        { label: 'DEX Screener', href: 'https://dexscreener.com/', external: true },
+        { label: 'Twitter', href: 'https://x.com/SantaChatAI', external: true },
+        { label: 'Telegram', href: 'https://t.me/santachatai', external: true },
+        {
+          label: 'DEX Screener',
+          href: 'https://dexscreener.com/',
+          external: true,
+        },
         {
           label: 'Raydium',
           href: 'https://raydium.io/swap/?inputMint=sol&outputMint=4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R',
@@ -80,15 +88,12 @@ export function Footer() {
   return (
     <footer className="relative">
       {/* Decorative Top Border */}
-      <div
-        className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r 
-                    from-transparent via-border to-transparent"
-      />
+      <div className="via-border absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent" />
 
       {/* Main Content */}
-      <div className="relative bg-background/50 backdrop-blur-sm">
+      <div className="bg-background/50 relative backdrop-blur-sm">
         <div className="container mx-auto px-4 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
             {/* Brand Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -98,18 +103,16 @@ export function Footer() {
             >
               {/* Logo */}
               <div className="flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-full bg-santa-red/10 
-                             flex items-center justify-center"
-                >
-                  <Bell className="w-5 h-5 text-santa-red" />
+                <div className="bg-santa-red/10 flex h-10 w-10 items-center justify-center rounded-full">
+                  <Bell className="text-santa-red h-5 w-5" />
                 </div>
-                <div className="font-bold text-xl">Santa Chat</div>
+                <div className="text-xl font-bold">Santa Chat</div>
               </div>
 
               {/* Description */}
-              <p className="text-sm text-muted-foreground">
-                Bringing Christmas magic to life through AI-powered conversations with Santa Claus.
+              <p className="text-muted-foreground text-sm">
+                Bringing Christmas magic to life through AI-powered
+                conversations with Santa Claus.
               </p>
 
               {/* Trust Badges */}
@@ -121,10 +124,9 @@ export function Footer() {
                 ].map((badge, i) => (
                   <div
                     key={i}
-                    className="flex items-center gap-1 text-xs text-muted-foreground
-                             px-2 py-1 rounded-full bg-background/50 border border-border/50"
+                    className="text-muted-foreground bg-background/50 border-border/50 flex items-center gap-1 rounded-full border px-2 py-1 text-xs"
                   >
-                    <badge.icon className="w-3 h-3" />
+                    <badge.icon className="h-3 w-3" />
                     {badge.text}
                   </div>
                 ))}
@@ -132,20 +134,24 @@ export function Footer() {
             </motion.div>
 
             {/* Navigation Sections */}
-            {footerSections.map(section => (
-              <FooterSection key={section.title} title={section.title} items={section.items} />
+            {footerSections.map((section) => (
+              <FooterSection
+                key={section.title}
+                title={section.title}
+                items={section.items}
+              />
             ))}
           </div>
 
           {/* Bottom Section */}
-          <div className="mt-16 pt-8 border-t border-border/50">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="border-border/50 mt-16 border-t pt-8">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
               {/* Copyright */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex items-center gap-2 text-sm text-muted-foreground"
+                className="text-muted-foreground flex items-center gap-2 text-sm"
               >
                 <span>© {currentYear} Santa Chat.</span>
                 <span>•</span>
@@ -159,7 +165,7 @@ export function Footer() {
                     repeat: Infinity,
                   }}
                 >
-                  <Heart className="w-4 h-4 text-santa-red" />
+                  <Heart className="text-santa-red h-4 w-4" />
                 </motion.div>
                 <span>at the North Pole</span>
               </motion.div>
@@ -169,12 +175,12 @@ export function Footer() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex justify-start md:justify-end items-center gap-4"
+                className="flex items-center justify-start gap-4 md:justify-end"
               >
                 {[
                   { icon: Twitter, href: 'https://twitter.com' },
-                  { icon: TelegramIcon, href: 'https://t.me/yourchannel' },
-                  { icon: Mail, href: 'mailto:santa@northpole.com' },
+                  { icon: TelegramIcon, href: 'https://t.me/santachatai' },
+                  { icon: Mail, href: 'mailto:redone@santachatai.com' },
                 ].map((social, i) => (
                   <Link
                     key={i}
@@ -183,7 +189,7 @@ export function Footer() {
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    <social.icon className="w-5 h-5" />
+                    <social.icon className="h-5 w-5" />
                   </Link>
                 ))}
               </motion.div>
