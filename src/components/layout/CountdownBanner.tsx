@@ -35,7 +35,7 @@ export function CountdownBanner() {
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    const targetDate = new Date('2024-12-17T21:00:00').getTime();
+    const targetDate = new Date('2024-12-25T21:00:00').getTime();
 
     const calculateTimeLeft = () => {
       const now = new Date().getTime();

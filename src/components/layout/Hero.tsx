@@ -149,7 +149,7 @@ const steps = [
     icon: Mail,
     title: 'Register with Email',
     description:
-      "Securely connect your parent's email to start your magical journey",
+      "Securely connect your email to start your magical journey",
   },
   {
     icon: MessageCircle,
