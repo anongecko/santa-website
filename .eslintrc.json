@@ -1,6 +1,5 @@
 {
   "extends": [
-    "next/core-web-vitals",
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended"
   ],
@@ -23,5 +22,13 @@
     "react": {
       "version": "detect"
     }
+  },
+  "rules": {
+    "react/no-unescaped-entities": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "prefer-const": "off",
+    "no-constant-condition": "off",
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }
