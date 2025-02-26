@@ -3,7 +3,7 @@
 > **Note**: This project was in active development when the client discontinued the engagement. While the core AI chat functionality and interactive landing page were completed, several advanced features (database integration, email verification, wishlist generation) were in progress but not fully implemented. Some traces of these features remain in the codebase.
 
 ## [Live Demo](#)
-https://santa-website-roan.vercel.app/ 
+[https://santa-website-roan.vercel.app/ ](https://santa-website-ct7a.vercel.app/)
 
 ![Santa Chat Landing Page](#)
 ![2025-02-26 14 18 11](https://github.com/user-attachments/assets/d1cb463d-6ca0-4970-a5ba-4c24de2d147d)
