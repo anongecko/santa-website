@@ -117,5 +117,4 @@ npm run dev
 ---
 
 **Project by:** Mark Eglseder
-**Role:** Full Stack Developer  
 **Duration:** December 2024
