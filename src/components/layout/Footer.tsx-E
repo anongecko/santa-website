@@ -180,7 +180,7 @@ export function Footer() {
                 {[
                   { icon: Twitter, href: 'https://twitter.com' },
                   { icon: TelegramIcon, href: 'https://t.me/santachatai' },
-                  { icon: Mail, href: 'mailto:SANTA@santachatai.com' },
+                  { icon: Mail, href: 'mailto:redone@santachatai.com' },
                 ].map((social, i) => (
                   <Link
                     key={i}

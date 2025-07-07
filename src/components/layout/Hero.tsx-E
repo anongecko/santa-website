@@ -262,7 +262,7 @@ export function Hero() {
                     'min-w-[200px] rounded-full px-8 py-6 text-lg'
                   )}
                 >
-                  <span className="flex items-center gap-2">Get $SANTA</span>
+                  <span className="flex items-center gap-2">Get $REDONE</span>
                 </Button>
               </Link>
             </SparkleButton>

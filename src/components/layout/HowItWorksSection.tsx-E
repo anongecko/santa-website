@@ -637,7 +637,7 @@ export function HowItWorksSection() {
                     whileHover={{ x: 5 }}
                     transition={{ duration: 0.2 }}
                   >
-                    Get $SANTA
+                    Get $REDONE
                     <ExternalLink className="h-4 w-4 flex-shrink-0 md:h-5 md:w-5" />
                   </motion.span>
                 </Button>

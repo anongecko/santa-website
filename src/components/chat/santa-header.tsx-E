@@ -23,7 +23,7 @@ export function SantaHeader() {
               <Bell className="text-santa-red h-5 w-5" />
             </div>
             <div className="flex-1 text-left">
-              <div className="text-sm font-medium">$SANTA AI</div>
+              <div className="text-sm font-medium">$REDONE AI</div>
             </div>
             <ChevronDown className="h-4 w-4 opacity-50" />
           </Button>
