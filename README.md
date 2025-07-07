@@ -3,7 +3,7 @@
 > **Note**: This project was in active development when the client discontinued the engagement. While the core AI chat functionality and interactive landing page were completed, several advanced features (database integration, email verification, wishlist generation) were in progress but not fully implemented. Some traces of these features remain in the codebase.
 
 ## [Live Demo](#)
-https://santa-website-roan.vercel.app/ 
+[https://santa-website-roan.vercel.app/ ](https://santa-website-ct7a.vercel.app/)
 
 ![Santa Chat Landing Page](#)
 ![2025-02-26 14 18 11](https://github.com/user-attachments/assets/d1cb463d-6ca0-4970-a5ba-4c24de2d147d)
@@ -29,7 +29,8 @@ The completed portion includes a fully functional AI chat and interactive landin
 - Interactive elements that preview AI capabilities
 - Light/dark theme toggle with smooth transitions
 
-![Landing Page Animation](#) <!-- Replace with a GIF of animations -->
+![2025-02-26 15 44 56](https://github.com/user-attachments/assets/7ace630b-6912-45bf-9e2f-f47365ad36c0)
+
 
 ### AI Chat Experience
 - OpenAI-powered conversational Santa persona
@@ -37,7 +38,7 @@ The completed portion includes a fully functional AI chat and interactive landin
 - Child-friendly conversation handling
 - Basic wishlist identification from conversation
 
-![AI Chat Interface](#) <!-- Replace with screenshot or GIF -->
+![image](https://github.com/user-attachments/assets/e8521d35-263a-4834-ad91-4c292602a859)
 
 ### Technical Achievements
 - Optimized animations that run smoothly on mobile devices
@@ -104,8 +105,6 @@ npm run dev
 - CSS-in-JS optimization with Tailwind
 - Preloading of critical resources
 - Optimized animations with Framer Motion
-
-![Performance Metrics](#) <!-- Replace with Lighthouse or similar metrics -->
 
 ## Learning Outcomes & Technical Challenges
 
